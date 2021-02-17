@@ -27,6 +27,7 @@ namespace Cinema
 
         private void ShowMenu()
         {
+            // Show menu
             menu.Width = 250;
             active.Width = 750;
         }
@@ -37,6 +38,12 @@ namespace Cinema
         Panel body;
         Button logout;
         Button halls;
+        //
+        Panel hallSubmenu;
+        Button smallHall;
+        Button mediumHall;
+        Button largeHall;
+        //
         Button movies;
         Button bookings;
 
@@ -87,6 +94,52 @@ namespace Cinema
             logout.Height = 50;
             logout.Click += Logout_Click;
 
+            //
+            hallSubmenu = new Panel();
+            body.Controls.Add(hallSubmenu);
+            hallSubmenu.Dock = DockStyle.Top;
+            hallSubmenu.BackColor = Color.Wheat;
+            hallSubmenu.Height = 0;
+
+            largeHall = new Button();
+            hallSubmenu.Controls.Add(largeHall);
+            largeHall.Dock = DockStyle.Top;
+            largeHall.BackColor = Color.Wheat;
+            largeHall.ForeColor = Color.Snow;
+            largeHall.FlatStyle = FlatStyle.Flat;
+            largeHall.FlatAppearance.BorderSize = 0;
+            largeHall.Font = new Font("Calibri", 22);
+            largeHall.Text = "Large";
+            largeHall.Height = 50;
+            largeHall.TextAlign = ContentAlignment.MiddleLeft;
+            largeHall.Padding = new Padding(30, 0, 0, 0);
+
+            mediumHall = new Button();
+            hallSubmenu.Controls.Add(mediumHall);
+            mediumHall.Dock = DockStyle.Top;
+            mediumHall.BackColor = Color.Wheat;
+            mediumHall.ForeColor = Color.Snow;
+            mediumHall.FlatStyle = FlatStyle.Flat;
+            mediumHall.FlatAppearance.BorderSize = 0;
+            mediumHall.Font = new Font("Calibri", 22);
+            mediumHall.Text = "Medium";
+            mediumHall.Height = 50;
+            mediumHall.TextAlign = ContentAlignment.MiddleLeft;
+            mediumHall.Padding = new Padding(30, 0, 0, 0);
+
+            smallHall = new Button();
+            hallSubmenu.Controls.Add(smallHall);
+            smallHall.Dock = DockStyle.Top;
+            smallHall.BackColor = Color.Wheat;
+            smallHall.ForeColor = Color.Snow;
+            smallHall.FlatStyle = FlatStyle.Flat;
+            smallHall.FlatAppearance.BorderSize = 0;
+            smallHall.Font = new Font("Calibri", 22);
+            smallHall.Text = "Small";
+            smallHall.Height = 50;
+            smallHall.TextAlign = ContentAlignment.MiddleLeft;
+            smallHall.Padding = new Padding(30, 0, 0, 0);
+            //
             halls = new Button();
             body.Controls.Add(halls);
             halls.Dock = DockStyle.Top;
@@ -97,6 +150,9 @@ namespace Cinema
             halls.Font = new Font("Calibri", 22);
             halls.Text = "Halls";
             halls.Height = 50;
+            halls.TextAlign = ContentAlignment.MiddleLeft;
+            halls.Padding = new Padding(15, 0, 0, 0);
+            halls.Click += Halls_Click;
 
             movies = new Button();
             body.Controls.Add(movies);
@@ -108,6 +164,8 @@ namespace Cinema
             movies.Font = new Font("Calibri", 22);
             movies.Text = "Movies";
             movies.Height = 50;
+            movies.TextAlign = ContentAlignment.MiddleLeft;
+            movies.Padding = new Padding(15, 0, 0, 0);
 
             bookings = new Button();
             body.Controls.Add(bookings);
@@ -119,6 +177,8 @@ namespace Cinema
             bookings.Font = new Font("Calibri", 22);
             bookings.Text = "Bookings";
             bookings.Height = 50;
+            bookings.TextAlign = ContentAlignment.MiddleLeft;
+            bookings.Padding = new Padding(15, 0, 0, 0);
 
 
             // Active form settings
@@ -127,6 +187,18 @@ namespace Cinema
             active.Dock = DockStyle.Right;
             active.BackColor = Color.BlanchedAlmond;
             active.Width = 750;
+        }
+
+        private void Halls_Click(object sender, EventArgs e)
+        {
+            if (hallSubmenu.Height == 0)
+            {
+                hallSubmenu.Height = 150;
+            }
+            else
+            {
+                hallSubmenu.Height = 0;
+            }
         }
 
         private void Cinema_KeyDown(object sender, KeyEventArgs e)

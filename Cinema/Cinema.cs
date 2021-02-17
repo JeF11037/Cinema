@@ -32,36 +32,81 @@ namespace Cinema
             active.Width = 750;
         }
 
+        private string previousIdentification;
+        private void ShowElements(string identification)
+        {
+            ShowElements();
+            switch (identification.ToLower())
+            {
+                case "large":
+                    layout = new PictureBox();
+                    layout.Name = "large";
+                    active.Controls.Add(layout);
+                    layout.Dock = DockStyle.Top;
+                    layout.BackColor = Color.Wheat;
+                    layout.Height = 650;
+                    previousIdentification = "large";
+                    break;
+                case "medium":
+                    layout = new PictureBox();
+                    layout.Name = "medium";
+                    active.Controls.Add(layout);
+                    layout.Dock = DockStyle.Top;
+                    layout.BackColor = Color.Wheat;
+                    layout.Height = 650;
+                    previousIdentification = "medium";
+                    break;
+                case "small":
+                    layout = new PictureBox();
+                    layout.Name = "small";
+                    active.Controls.Add(layout);
+                    layout.Dock = DockStyle.Top;
+                    layout.BackColor = Color.Wheat;
+                    layout.Height = 650;
+                    previousIdentification = "small";
+                    break;
+            }
+        }
+
+        private void ShowElements()
+        {
+            if (!string.IsNullOrEmpty(previousIdentification))
+            {
+                active.Controls.Remove(active.Controls.Find(previousIdentification, false)[0]);
+                previousIdentification = "";
+            }
+        }
+
         // Menu setup
-        Panel menu;
-        Panel header;
-        Panel body;
-        Button logout;
-        Button halls;
+        private Panel menu;
+        private Panel header;
+        private Panel body;
+        private Button logout;
+        private Button halls;
+        private Panel hallSubmenu;
         //
-        Panel hallSubmenu;
-        Button smallHall;
-        Button mediumHall;
-        Button largeHall;
+        private Button smallHall;
+        private Button mediumHall;
+        private Button largeHall;
         //
-        Button movies;
-        Button bookings;
+        private Button movies;
+        private Button bookings;
 
 
         // Active screen setup
-        Panel active;
+        private Panel active;
+        private PictureBox layout;
         private void InitializeComponents()
         {
             // Default form settings
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(1000, 800);
-            this.MaximumSize = this.Size;
-            this.MinimumSize = this.Size;
+            //this.MaximumSize = this.Size;
+            //this.MinimumSize = this.Size;
             this.KeyPreview = true;
 
             // Form events
             this.KeyDown += Cinema_KeyDown;
-
 
             // Menu settings
             menu = new Panel();
@@ -113,6 +158,7 @@ namespace Cinema
             largeHall.Height = 50;
             largeHall.TextAlign = ContentAlignment.MiddleLeft;
             largeHall.Padding = new Padding(30, 0, 0, 0);
+            largeHall.Click += LargeHall_Click;
 
             mediumHall = new Button();
             hallSubmenu.Controls.Add(mediumHall);
@@ -126,6 +172,7 @@ namespace Cinema
             mediumHall.Height = 50;
             mediumHall.TextAlign = ContentAlignment.MiddleLeft;
             mediumHall.Padding = new Padding(30, 0, 0, 0);
+            mediumHall.Click += MediumHall_Click;
 
             smallHall = new Button();
             hallSubmenu.Controls.Add(smallHall);
@@ -139,6 +186,7 @@ namespace Cinema
             smallHall.Height = 50;
             smallHall.TextAlign = ContentAlignment.MiddleLeft;
             smallHall.Padding = new Padding(30, 0, 0, 0);
+            smallHall.Click += SmallHall_Click;
             //
             halls = new Button();
             body.Controls.Add(halls);
@@ -166,6 +214,7 @@ namespace Cinema
             movies.Height = 50;
             movies.TextAlign = ContentAlignment.MiddleLeft;
             movies.Padding = new Padding(15, 0, 0, 0);
+            movies.Click += Movies_Click;
 
             bookings = new Button();
             body.Controls.Add(bookings);
@@ -179,6 +228,7 @@ namespace Cinema
             bookings.Height = 50;
             bookings.TextAlign = ContentAlignment.MiddleLeft;
             bookings.Padding = new Padding(15, 0, 0, 0);
+            bookings.Click += Bookings_Click;
 
 
             // Active form settings
@@ -187,6 +237,31 @@ namespace Cinema
             active.Dock = DockStyle.Right;
             active.BackColor = Color.BlanchedAlmond;
             active.Width = 750;
+            active.Padding = new Padding(50);
+        }
+
+        private void Movies_Click(object sender, EventArgs e)
+        {
+            ShowElements();
+        }
+
+        private void Bookings_Click(object sender, EventArgs e)
+        {
+            ShowElements();
+        }
+        private void LargeHall_Click(object sender, EventArgs e)
+        {
+            ShowElements("large");
+        }
+
+        private void MediumHall_Click(object sender, EventArgs e)
+        {
+            ShowElements("medium");
+        }
+
+        private void SmallHall_Click(object sender, EventArgs e)
+        {
+            ShowElements("small");
         }
 
         private void Halls_Click(object sender, EventArgs e)
@@ -211,6 +286,7 @@ namespace Cinema
 
         private void Logout_Click(object sender, EventArgs e)
         {
+            ShowElements();
             LoadStartScene();
         }
     }

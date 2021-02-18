@@ -12,10 +12,58 @@ namespace Cinema
 {
     public partial class Cinema : Form
     {
+        private readonly DataManager data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\levpe\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
+
         public Cinema()
         {
             //InitializeComponent();
             InitializeComponents();
+        }
+
+        private void CreateTables()
+        {
+            int tick = 1;
+            try
+            {
+                data.CreateTable("hall");
+                tick++;
+                data.CreateTable("movie");
+                tick++;
+                data.CreateTable("seat");
+                tick++;
+                data.CreateTable("showtime");
+                tick++;
+                data.CreateTable("ticket");
+                MessageBox.Show("Successfully created all tables");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Stopped at " + tick, "\n" + e.Message);
+                data.CloseConnection();
+            }
+        }
+
+        private void DropTables()
+        {
+            int tick = 1;
+            try
+            {
+                data.DropTable("ticket");
+                tick++;
+                data.DropTable("showtime");
+                tick++;
+                data.DropTable("seat");
+                tick++;
+                data.DropTable("movie");
+                tick++;
+                data.DropTable("hall");
+                MessageBox.Show("Successfully dropped all tables");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Stopped at " + tick, "\n" + e.Message);
+                data.CloseConnection();
+            }
         }
 
         private void LoadStartScene()
@@ -39,8 +87,10 @@ namespace Cinema
             switch (identification.ToLower())
             {
                 case "large":
-                    layout = new PictureBox();
-                    layout.Name = "large";
+                    layout = new PictureBox
+                    {
+                        Name = "large"
+                    };
                     active.Controls.Add(layout);
                     layout.Dock = DockStyle.Top;
                     layout.BackColor = Color.Wheat;
@@ -48,8 +98,10 @@ namespace Cinema
                     previousIdentification = "large";
                     break;
                 case "medium":
-                    layout = new PictureBox();
-                    layout.Name = "medium";
+                    layout = new PictureBox
+                    {
+                        Name = "medium"
+                    };
                     active.Controls.Add(layout);
                     layout.Dock = DockStyle.Top;
                     layout.BackColor = Color.Wheat;
@@ -57,13 +109,49 @@ namespace Cinema
                     previousIdentification = "medium";
                     break;
                 case "small":
-                    layout = new PictureBox();
-                    layout.Name = "small";
+                    layout = new PictureBox
+                    {
+                        Name = "small"
+                    };
                     active.Controls.Add(layout);
                     layout.Dock = DockStyle.Top;
                     layout.BackColor = Color.Wheat;
                     layout.Height = 650;
                     previousIdentification = "small";
+                    break;
+                case "control":
+                    dropCreateContainer = new Panel
+                    {
+                        Name = "control"
+                    };
+                    active.Controls.Add(dropCreateContainer);
+                    dropCreateContainer.Dock = DockStyle.Top;
+                    dropCreateContainer.Height = 650;
+                    create = new Button();
+                    drop = new Button();
+                    dropCreateContainer.Controls.Add(create);
+                    dropCreateContainer.Controls.Add(drop);
+                    create.Dock = DockStyle.Top;
+                    create.BackColor = Color.Wheat;
+                    create.ForeColor = Color.Snow;
+                    create.FlatStyle = FlatStyle.Flat;
+                    create.FlatAppearance.BorderSize = 2;
+                    create.FlatAppearance.BorderColor = Color.Snow;
+                    create.Height = 50;
+                    create.Font = new Font("Calibri", 22);
+                    create.Text = "Create tables";
+                    create.Click += Create_Click;
+                    drop.Dock = DockStyle.Bottom;
+                    drop.BackColor = Color.Wheat;
+                    drop.ForeColor = Color.Snow;
+                    drop.FlatStyle = FlatStyle.Flat;
+                    drop.FlatAppearance.BorderSize = 2;
+                    drop.FlatAppearance.BorderColor = Color.Snow;
+                    drop.Height = 50;
+                    drop.Font = new Font("Calibri", 22);
+                    drop.Text = "Drop tables";
+                    drop.Click += Drop_Click;
+                    previousIdentification = "control";
                     break;
             }
         }
@@ -82,6 +170,7 @@ namespace Cinema
         private Panel header;
         private Panel body;
         private Button logout;
+        private Button control;
         private Button halls;
         private Panel hallSubmenu;
         //
@@ -95,7 +184,10 @@ namespace Cinema
 
         // Active screen setup
         private Panel active;
+        private Panel dropCreateContainer;
         private PictureBox layout;
+        private Button create;
+        private Button drop;
         private void InitializeComponents()
         {
             // Default form settings
@@ -138,6 +230,20 @@ namespace Cinema
             logout.Text = "Logout";
             logout.Height = 50;
             logout.Click += Logout_Click;
+
+            control = new Button();
+            body.Controls.Add(control);
+            control.Dock = DockStyle.Top;
+            control.BackColor = Color.Wheat;
+            control.ForeColor = Color.Snow;
+            control.FlatStyle = FlatStyle.Flat;
+            control.FlatAppearance.BorderSize = 0;
+            control.Font = new Font("Calibri", 22);
+            control.Text = "Cotrols";
+            control.Height = 50;
+            control.TextAlign = ContentAlignment.MiddleLeft;
+            control.Padding = new Padding(15, 0, 0, 0);
+            control.Click += Control_Click;
 
             //
             hallSubmenu = new Panel();
@@ -239,6 +345,20 @@ namespace Cinema
             active.Width = 750;
             active.Padding = new Padding(50);
         }
+        private void Drop_Click(object sender, EventArgs e)
+        {
+            DropTables();
+        }
+
+        private void Create_Click(object sender, EventArgs e)
+        {
+            CreateTables();
+        }
+
+        private void Control_Click(object sender, EventArgs e)
+        {
+            ShowElements("control");
+        }
 
         private void Movies_Click(object sender, EventArgs e)
         {
@@ -249,6 +369,7 @@ namespace Cinema
         {
             ShowElements();
         }
+
         private void LargeHall_Click(object sender, EventArgs e)
         {
             ShowElements("large");

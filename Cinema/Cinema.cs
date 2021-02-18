@@ -18,7 +18,7 @@ namespace Cinema
         {
             try
             {
-                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename="+@"../../"+"MyDB.mdf;Integrated Security=True");
+                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\levpe\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
             }
             catch (Exception)
             {
@@ -138,7 +138,11 @@ namespace Cinema
                     dropCreateContainer.Height = 650;
                     create = new Button();
                     drop = new Button();
+                    insert = new Button();
+                    remove = new Button();
+                    dropCreateContainer.Controls.Add(insert);
                     dropCreateContainer.Controls.Add(create);
+                    dropCreateContainer.Controls.Add(remove);
                     dropCreateContainer.Controls.Add(drop);
                     create.Dock = DockStyle.Top;
                     create.BackColor = Color.Wheat;
@@ -160,6 +164,24 @@ namespace Cinema
                     drop.Font = new Font("Calibri", 22);
                     drop.Text = "Drop tables";
                     drop.Click += Drop_Click;
+                    insert.Dock = DockStyle.Top;
+                    insert.BackColor = Color.Wheat;
+                    insert.ForeColor = Color.Snow;
+                    insert.FlatStyle = FlatStyle.Flat;
+                    insert.FlatAppearance.BorderSize = 2;
+                    insert.FlatAppearance.BorderColor = Color.Snow;
+                    insert.Height = 50;
+                    insert.Font = new Font("Calibri", 22);
+                    insert.Text = "Insert basic rows";
+                    remove.Dock = DockStyle.Bottom;
+                    remove.BackColor = Color.Wheat;
+                    remove.ForeColor = Color.Snow;
+                    remove.FlatStyle = FlatStyle.Flat;
+                    remove.FlatAppearance.BorderSize = 2;
+                    remove.FlatAppearance.BorderColor = Color.Snow;
+                    remove.Height = 50;
+                    remove.Font = new Font("Calibri", 22);
+                    remove.Text = "Remove all rows";
                     previousIdentification = "control";
                     break;
             }
@@ -196,6 +218,8 @@ namespace Cinema
         private Panel layout;
         private Button create;
         private Button drop;
+        private Button insert;
+        private Button remove;
         private void InitializeComponents()
         {
             // Default form settings

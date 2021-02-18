@@ -47,7 +47,7 @@ namespace Cinema
             }
             catch (Exception e)
             {
-                MessageBox.Show("Stopped at " + tick, "\n" + e.Message);
+                MessageBox.Show(e.Message, "Stopped at " + tick);
                 data.CloseConnection();
             }
         }
@@ -70,7 +70,7 @@ namespace Cinema
             }
             catch (Exception e)
             {
-                MessageBox.Show("Stopped at " + tick, "\n" + e.Message);
+                MessageBox.Show(e.Message, "Stopped at " + tick);
                 data.CloseConnection();
             }
         }

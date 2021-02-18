@@ -18,7 +18,7 @@ namespace Cinema
         {
             try
             {
-                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\levpe\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
+                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename="+@"../../"+"MyDB.mdf;Integrated Security=True");
             }
             catch (Exception)
             {
@@ -190,7 +190,6 @@ namespace Cinema
         private Button movies;
         private Button bookings;
 
-
         // Active screen setup
         private Panel active;
         private Panel dropCreateContainer;
@@ -202,8 +201,9 @@ namespace Cinema
             // Default form settings
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(1000, 800);
-            //this.MaximumSize = this.Size;
-            //this.MinimumSize = this.Size;
+            this.Icon = new Icon("../../img/logo.ico");
+            this.MaximumSize = this.Size;
+            this.MinimumSize = this.Size;
             this.KeyPreview = true;
 
             // Form events

@@ -122,6 +122,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="img\green.png" />
+    <Content Include="img\logo.ico" />
+    <Content Include="img\red.png" />
+    <Content Include="img\yellow.png" />
     <Content Include="MyDB.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -130,6 +134,7 @@
       <DependentUpon>MyDB.mdf</DependentUpon>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

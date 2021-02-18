@@ -12,10 +12,19 @@ namespace Cinema
 {
     public partial class Cinema : Form
     {
-        private readonly DataManager data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\levpe\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
+        private readonly DataManager data;
 
         public Cinema()
         {
+            try
+            {
+                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\levpe\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Try to add DataBase or change link address", "DataBase error");
+                this.Close();
+            }
             //InitializeComponent();
             InitializeComponents();
         }
@@ -87,7 +96,7 @@ namespace Cinema
             switch (identification.ToLower())
             {
                 case "large":
-                    layout = new PictureBox
+                    layout = new Panel
                     {
                         Name = "large"
                     };
@@ -98,7 +107,7 @@ namespace Cinema
                     previousIdentification = "large";
                     break;
                 case "medium":
-                    layout = new PictureBox
+                    layout = new Panel
                     {
                         Name = "medium"
                     };
@@ -109,7 +118,7 @@ namespace Cinema
                     previousIdentification = "medium";
                     break;
                 case "small":
-                    layout = new PictureBox
+                    layout = new Panel
                     {
                         Name = "small"
                     };
@@ -185,7 +194,7 @@ namespace Cinema
         // Active screen setup
         private Panel active;
         private Panel dropCreateContainer;
-        private PictureBox layout;
+        private Panel layout;
         private Button create;
         private Button drop;
         private void InitializeComponents()

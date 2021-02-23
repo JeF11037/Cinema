@@ -29,6 +29,28 @@ namespace Cinema
             InitializeComponents();
         }
 
+        private void InsertBasicRows()
+        {
+            // Halls
+            int hallsCount = 0;
+            string[] hallsTypes = new string[]
+            {
+                "small",
+                "medium",
+                "large"
+            };
+            for (int tick = 1; tick < hallsCount + 1; tick++)
+            {
+                data.InsertData("", tick, true);
+            }
+
+            // Seats
+
+
+            // Movies
+
+        }
+
         private void CreateTables()
         {
             int tick = 1;
@@ -129,21 +151,21 @@ namespace Cinema
                     previousIdentification = "small";
                     break;
                 case "control":
-                    dropCreateContainer = new Panel
+                    adminContainer = new Panel
                     {
-                        Name = "control"
+                        Name = "adminContainer"
                     };
-                    active.Controls.Add(dropCreateContainer);
-                    dropCreateContainer.Dock = DockStyle.Top;
-                    dropCreateContainer.Height = 650;
+                    active.Controls.Add(adminContainer);
+                    adminContainer.Dock = DockStyle.Top;
+                    adminContainer.Height = 650;
                     create = new Button();
                     drop = new Button();
                     insert = new Button();
                     remove = new Button();
-                    dropCreateContainer.Controls.Add(insert);
-                    dropCreateContainer.Controls.Add(create);
-                    dropCreateContainer.Controls.Add(remove);
-                    dropCreateContainer.Controls.Add(drop);
+                    adminContainer.Controls.Add(insert);
+                    adminContainer.Controls.Add(create);
+                    adminContainer.Controls.Add(remove);
+                    adminContainer.Controls.Add(drop);
                     create.Dock = DockStyle.Top;
                     create.BackColor = Color.Wheat;
                     create.ForeColor = Color.Snow;
@@ -214,7 +236,7 @@ namespace Cinema
 
         // Active screen setup
         private Panel active;
-        private Panel dropCreateContainer;
+        private Panel adminContainer;
         private Panel layout;
         private Button create;
         private Button drop;

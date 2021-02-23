@@ -144,7 +144,7 @@ namespace Cinema
             connection.Close();
         }
 
-        public void InsertData(string first, int second, int third)
+        public void InsertData(string first, int second, bool third)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Hall(Type, Number, ThreeD) VALUES(" +
@@ -157,7 +157,7 @@ namespace Cinema
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(string first, string second, int third, int fourth)
+        public void InsertData(string first, string second, int third, bool fourth)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Movie(Category, Language, Subtitles, Duration) VALUES(" +
@@ -171,7 +171,7 @@ namespace Cinema
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(int first, int second, int third, int fourth)
+        public void InsertData(int first, int second, bool third, int fourth)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Seat(HallId, Row, Number, Busy) VALUES(" +

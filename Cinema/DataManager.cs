@@ -143,29 +143,68 @@ namespace Cinema
         {
             connection.Open();
             List<int> ids = new List<int>();
-            command = new SqlCommand("SELECT Id FROM @table", connection);
-            command.Parameters.AddWithValue("@table", table);
+            switch (table)
+            {
+                case "hall":
+                    command = new SqlCommand("SELECT Id FROM Hall", connection);
+                    break;
+                case "seat":
+                    command = new SqlCommand("SELECT Id FROM Seat", connection);
+                    break;
+                case "movie":
+                    command = new SqlCommand("SELECT Id FROM Movie", connection);
+                    break;
+                case "showtime":
+                    command = new SqlCommand("SELECT Id FROM Showtime", connection);
+                    break;
+                case "ticket":
+                    command = new SqlCommand("SELECT Id FROM Ticket", connection);
+                    break;
+            }
+
+            command.CommandType = CommandType.Text;
             using (var reader = command.ExecuteReader())
             {
-                ids.Add(Convert.ToInt32(reader["Id"].ToString()));
+                while (reader.Read())
+                {
+                    ids.Add(Convert.ToInt32(reader["Id"].ToString()));
+                }
             }
             connection.Close();
             return ids;
         }
 
-        public string GetType(string table, int id)
+        public string GetSpecificRow(string table, string sign, int id)
         {
             connection.Open();
-            string type = "";
-            command = new SqlCommand("SELECT Type FROM @table WHERE Id = @id", connection);
-            command.Parameters.AddWithValue("@table", table);
+            string row = "";
+            switch (table)
+            {
+                case "hall":
+                    command = new SqlCommand("SELECT @sign FROM Hall WHERE Id = @id", connection);
+                    break;
+                case "seat":
+                    command = new SqlCommand("SELECT @sign FROM Seat WHERE Id = @id", connection);
+                    break;
+                case "movie":
+                    command = new SqlCommand("SELECT @sign FROM Movie WHERE Id = @id", connection);
+                    break;
+                case "showtime":
+                    command = new SqlCommand("SELECT @sign FROM Showtime WHERE Id = @id", connection);
+                    break;
+                case "ticket":
+                    command = new SqlCommand("SELECT @sign FROM Ticket WHERE Id = @id", connection);
+                    break;
+            }
+            command.Parameters.AddWithValue("@sign", sign);
             command.Parameters.AddWithValue("@id", id);
+            command.CommandType = CommandType.Text;
             using (var reader = command.ExecuteReader())
             {
-                type = reader["Id"].ToString();
+                row = reader[sign].ToString();
             }
             connection.Close();
-            return type;
+            return row;
         }
 
         public void InsertData(string first, int second, bool third)

@@ -35,7 +35,7 @@ namespace Cinema
             switch (table)
             {
                 case "hall":
-                    int hallsCount = 5;
+                    int hallsCount = 10;
                     string[] hallsTypes = new string[]
                     {
                         "small",
@@ -48,11 +48,11 @@ namespace Cinema
                     }
                     break;
                 case "seat":
-                    List<int> halls = data.GetIds("Hall");
+                    List<int> halls = data.GetIds("hall");
                     foreach (var el in halls)
                     {
                         int seats = 0;
-                        switch (data.GetType("Hall", el))
+                        switch (data.GetType("Hall", "Type",el))
                         {
                             case "small":
                                 seats = 16;
@@ -440,12 +440,14 @@ namespace Cinema
         }
         private void Insert_Click(object sender, EventArgs e)
         {
+            InsertBasicRows("hall");
             InsertBasicRows("seat");
         }
 
         private void Remove_Click(object sender, EventArgs e)
         {
             RemoveRows("Seat");
+            RemoveRows("Hall");
         }
         private void Drop_Click(object sender, EventArgs e)
         {

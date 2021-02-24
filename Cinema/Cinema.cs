@@ -12,6 +12,7 @@ namespace Cinema
 {
     public partial class Cinema : Form
     {
+        readonly private Random rnd = new Random();
         private readonly DataManager data;
 
         public Cinema()
@@ -29,26 +30,61 @@ namespace Cinema
             InitializeComponents();
         }
 
-        private void InsertBasicRows()
+        private void InsertBasicRows(string table)
         {
-            // Halls
-            int hallsCount = 0;
-            string[] hallsTypes = new string[]
+            switch (table)
             {
-                "small",
-                "medium",
-                "large"
-            };
-            for (int tick = 1; tick < hallsCount + 1; tick++)
-            {
-                data.InsertData("", tick, true);
+                case "hall":
+                    int hallsCount = 5;
+                    string[] hallsTypes = new string[]
+                    {
+                        "small",
+                        "medium",
+                        "large"
+                    };
+                    for (int tick = 1; tick < hallsCount + 1; tick++)
+                    {
+                        data.InsertData(hallsTypes[rnd.Next(0, 3)], tick, false);
+                    }
+                    break;
+                case "seat":
+                    List<int> halls = data.GetIds("Hall");
+                    foreach (var el in halls)
+                    {
+                        int seats = 0;
+                        switch (data.GetType("Hall", el))
+                        {
+                            case "small":
+                                seats = 16;
+                                break;
+                            case "medium":
+                                seats = 32;
+                                break;
+                            case "large":
+                                seats = 64;
+                                break;
+                        }
+                        for (int row = 0; row < seats / 2; row++)
+                        {
+                            for (int number = 0; number < seats / 2; number++)
+                            {
+                                data.InsertData(el, row, number, false);
+                            }
+                        }
+                    }
+                    break;
             }
 
-            // Seats
+        }
 
+        private void RemoveRows(string table)
+        {
+            data.ClearData(table);
+        }
 
-            // Movies
-
+        private void RemoveRows(string table, int id)
+        {
+            data.ClearData(table, id);
         }
 
         private void CreateTables()
@@ -195,6 +231,7 @@ namespace Cinema
                     insert.Height = 50;
                     insert.Font = new Font("Calibri", 22);
                     insert.Text = "Insert basic rows";
+                    insert.Click += Insert_Click;
                     remove.Dock = DockStyle.Bottom;
                     remove.BackColor = Color.Wheat;
                     remove.ForeColor = Color.Snow;
@@ -204,6 +241,7 @@ namespace Cinema
                     remove.Height = 50;
                     remove.Font = new Font("Calibri", 22);
                     remove.Text = "Remove all rows";
+                    remove.Click += Remove_Click;
                     previousIdentification = "control";
                     break;
             }
@@ -399,6 +437,15 @@ namespace Cinema
             active.BackColor = Color.BlanchedAlmond;
             active.Width = 750;
             active.Padding = new Padding(50);
+        }
+        private void Insert_Click(object sender, EventArgs e)
+        {
+            InsertBasicRows("seat");
+        }
+
+        private void Remove_Click(object sender, EventArgs e)
+        {
+            RemoveRows("Seat");
         }
         private void Drop_Click(object sender, EventArgs e)
         {

@@ -121,27 +121,51 @@ namespace Cinema
         public void ClearData(string table)
         {
             connection.Open();
-            switch (table.ToLower())
-            {
-                case "hall":
-                    command = new SqlCommand("DELETE FROM Hall", connection);
-                    break;
-                case "showtime":
-                    command = new SqlCommand("DELETE FROM Showtime", connection);
-                    break;
-                case "ticket":
-                    command = new SqlCommand("DELETE FROM Ticket", connection);
-                    break;
-                case "movie":
-                    command = new SqlCommand("DELETE FROM Movie", connection);
-                    break;
-                case "seat":
-                    command = new SqlCommand("DELETE FROM Seat", connection);
-                    break;
-            }
+            command = new SqlCommand("DELETE FROM @table", connection);
+            command.Parameters.AddWithValue("@table", table);
             command.CommandType = CommandType.Text;
             command.ExecuteNonQuery();
             connection.Close();
+        }
+
+        public void ClearData(string table, int id)
+        {
+            connection.Open();
+            command = new SqlCommand("DELETE FROM @table WHERE Id = @Id", connection);
+            command.Parameters.AddWithValue("@table", table);
+            command.Parameters.AddWithValue("@Id", id);
+            command.CommandType = CommandType.Text;
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
+
+        public List<int> GetIds(string table)
+        {
+            connection.Open();
+            List<int> ids = new List<int>();
+            command = new SqlCommand("SELECT Id FROM @table", connection);
+            command.Parameters.AddWithValue("@table", table);
+            using (var reader = command.ExecuteReader())
+            {
+                ids.Add(Convert.ToInt32(reader["Id"].ToString()));
+            }
+            connection.Close();
+            return ids;
+        }
+
+        public string GetType(string table, int id)
+        {
+            connection.Open();
+            string type = "";
+            command = new SqlCommand("SELECT Type FROM @table WHERE Id = @id", connection);
+            command.Parameters.AddWithValue("@table", table);
+            command.Parameters.AddWithValue("@id", id);
+            using (var reader = command.ExecuteReader())
+            {
+                type = reader["Id"].ToString();
+            }
+            connection.Close();
+            return type;
         }
 
         public void InsertData(string first, int second, bool third)
@@ -157,7 +181,7 @@ namespace Cinema
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(string first, string second, int third, bool fourth)
+        public void InsertData(int first, int second, int third, bool fourth)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Movie(Category, Language, Subtitles, Duration) VALUES(" +
@@ -171,7 +195,7 @@ namespace Cinema
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(int first, int second, bool third, int fourth)
+        public void InsertData(string first, string second, bool third, int fourth)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Seat(HallId, Row, Number, Busy) VALUES(" +

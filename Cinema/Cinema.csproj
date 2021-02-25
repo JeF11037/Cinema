@@ -83,6 +83,14 @@
     <Compile Include="DataManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="tablesSet.cs">
+      <DependentUpon>tablesSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="tablesSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>tablesSet.xsd</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Cinema.resx">
       <DependentUpon>Cinema.cs</DependentUpon>
     </EmbeddedResource>
@@ -105,6 +113,17 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="tablesSet.xsc">
+      <DependentUpon>tablesSet.xsd</DependentUpon>
+    </None>
+    <None Include="tablesSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>tablesSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="tablesSet.xss">
+      <DependentUpon>tablesSet.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

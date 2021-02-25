@@ -15,6 +15,8 @@ namespace Cinema
         readonly private Random rnd = new Random();
         private readonly DataManager data;
 
+        private int progressBarTick { get; set; }
+
         public Cinema()
         {
             try
@@ -152,12 +154,12 @@ namespace Cinema
                                 categories[rnd.Next(0, categories.Length)],
                                 languages[rnd.Next(0, languages.Length)],
                                 false,
-                                rnd.Next(0, 300)
+                                rnd.Next(90, 300)
                                 );
                         }
                         break;
                 }
-                MessageBox.Show("Successfully created all basic rows to table : " + table);
+                MessageBox.Show("Successfully inserted all basic rows to table : " + table);
             }
             catch (Exception e)
             {
@@ -254,6 +256,19 @@ namespace Cinema
             active.Width = 750;
         }
 
+        private void TableBoxValueChanged()
+        {
+            try
+            {
+                adminTable.DataSource = data.GetTable(tablesBox.SelectedValue.ToString());
+            }
+            catch (Exception)
+            {
+                data.CloseConnection();
+                MessageBox.Show("No tables matched");
+            }
+        }
+
         private string previousIdentification;
         private void ShowElements(string identification)
         {
@@ -311,7 +326,7 @@ namespace Cinema
                     adminContainer.Controls.Add(create);
                     adminContainer.Controls.Add(remove);
                     adminContainer.Controls.Add(drop);
-                    create.Dock = DockStyle.Top;
+                    create.Dock = DockStyle.Bottom;
                     create.BackColor = Color.Wheat;
                     create.ForeColor = Color.Snow;
                     create.FlatStyle = FlatStyle.Flat;
@@ -331,7 +346,7 @@ namespace Cinema
                     drop.Font = new Font("Calibri", 22);
                     drop.Text = "Drop tables";
                     drop.Click += Drop_Click;
-                    insert.Dock = DockStyle.Top;
+                    insert.Dock = DockStyle.Bottom;
                     insert.BackColor = Color.Wheat;
                     insert.ForeColor = Color.Snow;
                     insert.FlatStyle = FlatStyle.Flat;
@@ -351,7 +366,36 @@ namespace Cinema
                     remove.Font = new Font("Calibri", 22);
                     remove.Text = "Remove all rows";
                     remove.Click += Remove_Click;
-                    previousIdentification = "control";
+                    // Progress bar
+                    bar = new ProgressBar();
+                    adminContainer.Controls.Add(bar);
+                    bar.Dock = DockStyle.Bottom;
+                    bar.BackColor = Color.Wheat;
+                    bar.Maximum = 100;
+                    bar.Minimum = 0;
+                    bar.ForeColor = Color.Snow;
+                    // DataGridView
+                    adminTable = new DataGridView();
+                    adminContainer.Controls.Add(adminTable);
+                    adminTable.Dock = DockStyle.Top;
+                    adminTable.BackgroundColor = Color.Wheat;
+                    adminTable.GridColor = Color.BlanchedAlmond;
+                    adminTable.RowHeadersVisible = false;
+                    adminTable.AllowUserToResizeColumns = false;
+                    adminTable.AllowUserToResizeRows = false;
+                    adminTable.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+                    adminTable.AllowUserToOrderColumns = true;
+                    adminTable.RowTemplate.Height = 50;
+                    adminTable.Height = 400;
+                    adminTable.DefaultCellStyle = new DataGridViewCellStyle() 
+                    {
+                        Alignment = DataGridViewContentAlignment.MiddleCenter,
+                        BackColor = Color.BlanchedAlmond,
+                        Font = new Font("Calibri", 22),
+                        ForeColor = Color.Snow,
+                        SelectionBackColor = Color.Wheat,
+                        SelectionForeColor = Color.Snow
+                    };
                     // Combobox
                     tablesBox = new ComboBox();
                     adminContainer.Controls.Add(tablesBox);
@@ -360,12 +404,20 @@ namespace Cinema
                     tablesBox.Font = new Font("Calibri", 22);
                     tablesBox.BackColor = Color.Wheat;
                     tablesBox.ForeColor = Color.Snow;
-                    // DataGridView
-                    adminTable = new DataGridView();
-                    adminContainer.Controls.Add(adminTable);
-                    adminTable.Dock = DockStyle.Fill;
-                    adminTable.BackgroundColor = Color.Wheat;
-                    adminTable.GridColor = Color.BlanchedAlmond;
+                    string[] tables = new string[]
+                    {
+                        "Hall",
+                        "Movie",
+                        "Seat",
+                        "Showtime",
+                        "Ticket"
+                    };
+                    tablesBox.DataSource = tables;
+                    tablesBox.SelectedValueChanged += TablesBox_SelectedValueChanged;
+                    // adminTable DataSource bound
+                    TableBoxValueChanged();
+                    // Var
+                    previousIdentification = "adminContainer";
                     break;
             }
         }
@@ -401,6 +453,7 @@ namespace Cinema
         private Panel layout;
         private DataGridView adminTable;
         private ComboBox tablesBox;
+        private ProgressBar bar;
         private Button create;
         private Button drop;
         private Button insert;
@@ -563,29 +616,65 @@ namespace Cinema
             active.Width = 750;
             active.Padding = new Padding(50);
         }
+
+        private void TablesBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            TableBoxValueChanged();
+        }
+
         private void Insert_Click(object sender, EventArgs e)
         {
-            InsertBasicRows("movie");
-            InsertBasicRows("hall");
-            InsertBasicRows("seat");
+            this.Enabled = false;
+            if (!data.IsTableEmpty("movie"))
+            {
+                InsertBasicRows("movie");
+            }
+            else
+            {
+                MessageBox.Show("Values inserted in Movie already");
+            }
+            if (!data.IsTableEmpty("hall"))
+            {
+                InsertBasicRows("hall");
+            }
+            else
+            {
+                MessageBox.Show("Values inserted in Hall already");
+            }
+            if (!data.IsTableEmpty("seat"))
+            {
+                InsertBasicRows("seat");
+            }
+            else
+            {
+                MessageBox.Show("Values inserted in Seat already");
+            }
+            this.Enabled = true;
         }
 
         private void Remove_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             RemoveRows("ticket");
             RemoveRows("showtime");
             RemoveRows("seat");
             RemoveRows("movie");
             RemoveRows("hall");
+            this.Enabled = true;
         }
+
         private void Drop_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             DropTables();
+            this.Enabled = true;
         }
 
         private void Create_Click(object sender, EventArgs e)
         {
+            this.Enabled = false;
             CreateTables();
+            this.Enabled = true;
         }
 
         private void Control_Click(object sender, EventArgs e)

@@ -12,7 +12,7 @@ namespace Cinema
     {
         private readonly SqlConnection connection;
         private SqlCommand command;
-        //private SqlDataAdapter adapter;
+        private SqlDataAdapter adapter;
 
         public DataManager(string link)
         {
@@ -310,6 +310,70 @@ namespace Cinema
             command.CommandType = CommandType.Text;
             command.ExecuteNonQuery();
             connection.Close();
+        }
+
+        public DataTable GetTable(string table)
+        {
+            connection.Open();
+            DataTable tbl = new DataTable();
+            switch (table.ToLower())
+            {
+                case "hall":
+                    adapter = new SqlDataAdapter("SELECT * FROM Hall", connection);
+                    break;
+                case "seat":
+                    adapter = new SqlDataAdapter("SELECT * FROM Seat", connection);
+                    break;
+                case "movie":
+                    adapter = new SqlDataAdapter("SELECT * FROM Movie", connection);
+                    break;
+                case "showtime":
+                    adapter = new SqlDataAdapter("SELECT * FROM Showtime", connection);
+                    break;
+                case "ticket":
+                    adapter = new SqlDataAdapter("SELECT * FROM Ticket", connection);
+                    break;
+            }
+            adapter.Fill(tbl);
+            connection.Close();
+            return tbl;
+        }
+
+        public bool IsTableEmpty(string table)
+        {
+            connection.Open();
+            switch (table.ToLower())
+            {
+                case "hall":
+                    command = new SqlCommand("SELECT * FROM Hall", connection);
+                    break;
+                case "seat":
+                    command = new SqlCommand("SELECT * FROM Seat", connection);
+                    break;
+                case "movie":
+                    command = new SqlCommand("SELECT * FROM Movie", connection);
+                    break;
+                case "showtime":
+                    command = new SqlCommand("SELECT * FROM Showtime", connection);
+                    break;
+                case "ticket":
+                    command = new SqlCommand("SELECT * FROM Ticket", connection);
+                    break;
+            }
+            command.CommandType = CommandType.Text;
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    connection.Close();
+                    return true;
+                }
+                else
+                {
+                    connection.Close();
+                    return false;
+                }
+            }
         }
     }
 }

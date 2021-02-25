@@ -15,8 +15,6 @@ namespace Cinema
         readonly private Random rnd = new Random();
         private readonly DataManager data;
 
-        private int progressBarTick { get; set; }
-
         public Cinema()
         {
             try
@@ -36,6 +34,7 @@ namespace Cinema
         {
             try
             {
+                bar.Value = 0;
                 switch (table)
                 {
                     case "hall":
@@ -49,7 +48,9 @@ namespace Cinema
                         for (int tick = 1; tick < hallsCount + 1; tick++)
                         {
                             data.InsertData(hallsTypes[rnd.Next(0, 3)], tick, false);
+                            bar.Value += 1000 / hallsCount;
                         }
+                        bar.Value = 1000;
                         break;
                     case "seat":
                         List<int> halls = data.GetIds("hall");
@@ -74,8 +75,10 @@ namespace Cinema
                                 {
                                     data.InsertData(el, row, number, false);
                                 }
+                                bar.Value += 1;
                             }
                         }
+                        bar.Value = 1000;
                         break;
                     case "movie":
                         int moviesCount = 10;
@@ -156,13 +159,17 @@ namespace Cinema
                                 false,
                                 rnd.Next(90, 300)
                                 );
+                            bar.Value += 1000 / moviesCount;
                         }
+                        bar.Value = 1000;
                         break;
                 }
                 MessageBox.Show("Successfully inserted all basic rows to table : " + table);
+                bar.Value = 0;
             }
             catch (Exception e)
             {
+                bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped because of... ");
                 data.CloseConnection();
             }
@@ -172,11 +179,15 @@ namespace Cinema
         {
             try
             {
+                bar.Value = 0;
                 data.ClearData(table);
+                bar.Value += 1000;
                 MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+                bar.Value = 0;
             }
             catch (Exception e)
             {
+                bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped because of... ");
                 data.CloseConnection();
             }
@@ -186,11 +197,15 @@ namespace Cinema
         {
             try
             {
+                bar.Value = 0;
                 data.ClearData(table, id);
+                bar.Value += 1000;
                 MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+                bar.Value = 0;
             }
             catch (Exception e)
             {
+                bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped because of... ");
                 data.CloseConnection();
             }
@@ -201,19 +216,26 @@ namespace Cinema
             int tick = 1;
             try
             {
+                bar.Value = 0;
                 data.CreateTable("hall");
                 tick++;
+                bar.Value += 250;
                 data.CreateTable("movie");
                 tick++;
+                bar.Value += 250;
                 data.CreateTable("seat");
                 tick++;
+                bar.Value += 250;
                 data.CreateTable("showtime");
                 tick++;
+                bar.Value += 250;
                 data.CreateTable("ticket");
                 MessageBox.Show("Successfully created all tables");
+                bar.Value = 0;
             }
             catch (Exception e)
             {
+                bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped at " + tick);
                 data.CloseConnection();
             }
@@ -224,19 +246,26 @@ namespace Cinema
             int tick = 1;
             try
             {
+                bar.Value = 0;
                 data.DropTable("ticket");
                 tick++;
+                bar.Value += 250;
                 data.DropTable("showtime");
                 tick++;
+                bar.Value += 250;
                 data.DropTable("seat");
                 tick++;
+                bar.Value += 250;
                 data.DropTable("movie");
                 tick++;
+                bar.Value += 250;
                 data.DropTable("hall");
                 MessageBox.Show("Successfully dropped all tables");
+                bar.Value = 0;
             }
             catch (Exception e)
             {
+                bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped at " + tick);
                 data.CloseConnection();
             }
@@ -371,7 +400,7 @@ namespace Cinema
                     adminContainer.Controls.Add(bar);
                     bar.Dock = DockStyle.Bottom;
                     bar.BackColor = Color.Wheat;
-                    bar.Maximum = 100;
+                    bar.Maximum = 1000;
                     bar.Minimum = 0;
                     bar.ForeColor = Color.Snow;
                     // DataGridView

@@ -352,7 +352,20 @@ namespace Cinema
                     remove.Text = "Remove all rows";
                     remove.Click += Remove_Click;
                     previousIdentification = "control";
+                    // Combobox
+                    tablesBox = new ComboBox();
+                    adminContainer.Controls.Add(tablesBox);
+                    tablesBox.Dock = DockStyle.Top;
+                    tablesBox.Height = 20;
+                    tablesBox.Font = new Font("Calibri", 22);
+                    tablesBox.BackColor = Color.Wheat;
+                    tablesBox.ForeColor = Color.Snow;
                     // DataGridView
+                    adminTable = new DataGridView();
+                    adminContainer.Controls.Add(adminTable);
+                    adminTable.Dock = DockStyle.Fill;
+                    adminTable.BackgroundColor = Color.Wheat;
+                    adminTable.GridColor = Color.BlanchedAlmond;
                     break;
             }
         }
@@ -387,6 +400,7 @@ namespace Cinema
         private Panel adminContainer;
         private Panel layout;
         private DataGridView adminTable;
+        private ComboBox tablesBox;
         private Button create;
         private Button drop;
         private Button insert;

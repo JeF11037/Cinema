@@ -12,6 +12,7 @@ namespace Cinema
 {
     public partial class Cinema : Form
     {
+        readonly private Random rnd = new Random();
         private readonly DataManager data;
 
         public Cinema()
@@ -27,6 +28,170 @@ namespace Cinema
             }
             //InitializeComponent();
             InitializeComponents();
+        }
+
+        private void InsertBasicRows(string table)
+        {
+            try
+            {
+                switch (table)
+                {
+                    case "hall":
+                        int hallsCount = 10;
+                        string[] hallsTypes = new string[]
+                        {
+                        "small",
+                        "medium",
+                        "large"
+                        };
+                        for (int tick = 1; tick < hallsCount + 1; tick++)
+                        {
+                            data.InsertData(hallsTypes[rnd.Next(0, 3)], tick, false);
+                        }
+                        break;
+                    case "seat":
+                        List<int> halls = data.GetIds("hall");
+                        foreach (var el in halls)
+                        {
+                            int seats = 0;
+                            switch (data.GetSpecificRow("hall", 1, el))
+                            {
+                                case "small":
+                                    seats = 16;
+                                    break;
+                                case "medium":
+                                    seats = 32;
+                                    break;
+                                case "large":
+                                    seats = 64;
+                                    break;
+                            }
+                            for (int row = 1; row < seats / 2 + 1; row++)
+                            {
+                                for (int number = 1; number < seats / 2 + 1; number++)
+                                {
+                                    data.InsertData(el, row, number, false);
+                                }
+                            }
+                        }
+                        break;
+                    case "movie":
+                        int moviesCount = 10;
+                        string[] categories = new string[]
+                        {
+                        "Historical",
+                        "Comedy",
+                        "Fantasy",
+                        "Military",
+                        "Action",
+                        "Horror",
+                        "Romance",
+                        "Thriller",
+                        "Drama",
+                        "Mystery"
+                        };
+                        string[] firstNames = new string[]
+                        {
+                        "Medic",
+                        "Recruits",
+                        "Star",
+                        "Doom",
+                        "Joy",
+                        "Caution",
+                        "Afraid",
+                        "Inception",
+                        "Alerted",
+                        "Humans",
+                        "Aliens"
+                        };
+                        string[] languages = new string[]
+                        {
+                        "English",
+                        "Russian",
+                        "Estonian"
+                        };
+                        string[] secondNames = new string[]
+                        {
+                        "Of",
+                        "Of",
+                        "In",
+                        "On",
+                        "Without",
+                        "Within",
+                        "In",
+                        "On",
+                        };
+                        string[] thirdNames = new string[]
+                        {
+                        "The ",
+                        " "
+                        };
+                        string[] fourthNames = new string[]
+                        {
+                        "Time",
+                        "Travellers",
+                        "Stardust",
+                        "Life",
+                        "Technology",
+                        "Galaxy",
+                        "Spies",
+                        "End",
+                        "Truth"
+                        };
+                        for (int tick = 0; tick < moviesCount; tick++)
+                        {
+                            string movieName =
+                                firstNames[rnd.Next(0, firstNames.Length)]
+                                + " "
+                                + secondNames[rnd.Next(0, secondNames.Length)]
+                                + " "
+                                + thirdNames[rnd.Next(0, thirdNames.Length)]
+                                + fourthNames[rnd.Next(0, fourthNames.Length)];
+                            data.InsertData(
+                                movieName,
+                                categories[rnd.Next(0, categories.Length)],
+                                languages[rnd.Next(0, languages.Length)],
+                                false,
+                                rnd.Next(0, 300)
+                                );
+                        }
+                        break;
+                }
+                MessageBox.Show("Successfully created all basic rows to table : " + table);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Stopped because of... ");
+                data.CloseConnection();
+            }
+        }
+
+        private void RemoveRows(string table)
+        {
+            try
+            {
+                data.ClearData(table);
+                MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Stopped because of... ");
+                data.CloseConnection();
+            }
+        }
+
+        private void RemoveRows(string table, int id)
+        {
+            try
+            {
+                data.ClearData(table, id);
+                MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Stopped because of... ");
+                data.CloseConnection();
+            }
         }
 
         private void CreateTables()
@@ -129,21 +294,23 @@ namespace Cinema
                     previousIdentification = "small";
                     break;
                 case "control":
-                    dropCreateContainer = new Panel
+                    // Container
+                    adminContainer = new Panel
                     {
-                        Name = "control"
+                        Name = "adminContainer"
                     };
-                    active.Controls.Add(dropCreateContainer);
-                    dropCreateContainer.Dock = DockStyle.Top;
-                    dropCreateContainer.Height = 650;
+                    active.Controls.Add(adminContainer);
+                    adminContainer.Dock = DockStyle.Top;
+                    adminContainer.Height = 650;
+                    // Buttons
                     create = new Button();
                     drop = new Button();
                     insert = new Button();
                     remove = new Button();
-                    dropCreateContainer.Controls.Add(insert);
-                    dropCreateContainer.Controls.Add(create);
-                    dropCreateContainer.Controls.Add(remove);
-                    dropCreateContainer.Controls.Add(drop);
+                    adminContainer.Controls.Add(insert);
+                    adminContainer.Controls.Add(create);
+                    adminContainer.Controls.Add(remove);
+                    adminContainer.Controls.Add(drop);
                     create.Dock = DockStyle.Top;
                     create.BackColor = Color.Wheat;
                     create.ForeColor = Color.Snow;
@@ -173,6 +340,7 @@ namespace Cinema
                     insert.Height = 50;
                     insert.Font = new Font("Calibri", 22);
                     insert.Text = "Insert basic rows";
+                    insert.Click += Insert_Click;
                     remove.Dock = DockStyle.Bottom;
                     remove.BackColor = Color.Wheat;
                     remove.ForeColor = Color.Snow;
@@ -182,7 +350,22 @@ namespace Cinema
                     remove.Height = 50;
                     remove.Font = new Font("Calibri", 22);
                     remove.Text = "Remove all rows";
+                    remove.Click += Remove_Click;
                     previousIdentification = "control";
+                    // Combobox
+                    tablesBox = new ComboBox();
+                    adminContainer.Controls.Add(tablesBox);
+                    tablesBox.Dock = DockStyle.Top;
+                    tablesBox.Height = 20;
+                    tablesBox.Font = new Font("Calibri", 22);
+                    tablesBox.BackColor = Color.Wheat;
+                    tablesBox.ForeColor = Color.Snow;
+                    // DataGridView
+                    adminTable = new DataGridView();
+                    adminContainer.Controls.Add(adminTable);
+                    adminTable.Dock = DockStyle.Fill;
+                    adminTable.BackgroundColor = Color.Wheat;
+                    adminTable.GridColor = Color.BlanchedAlmond;
                     break;
             }
         }
@@ -214,8 +397,10 @@ namespace Cinema
 
         // Active screen setup
         private Panel active;
-        private Panel dropCreateContainer;
+        private Panel adminContainer;
         private Panel layout;
+        private DataGridView adminTable;
+        private ComboBox tablesBox;
         private Button create;
         private Button drop;
         private Button insert;
@@ -377,6 +562,21 @@ namespace Cinema
             active.BackColor = Color.BlanchedAlmond;
             active.Width = 750;
             active.Padding = new Padding(50);
+        }
+        private void Insert_Click(object sender, EventArgs e)
+        {
+            InsertBasicRows("movie");
+            InsertBasicRows("hall");
+            InsertBasicRows("seat");
+        }
+
+        private void Remove_Click(object sender, EventArgs e)
+        {
+            RemoveRows("ticket");
+            RemoveRows("showtime");
+            RemoveRows("seat");
+            RemoveRows("movie");
+            RemoveRows("hall");
         }
         private void Drop_Click(object sender, EventArgs e)
         {

@@ -32,59 +32,166 @@ namespace Cinema
 
         private void InsertBasicRows(string table)
         {
-            switch (table)
+            try
             {
-                case "hall":
-                    int hallsCount = 10;
-                    string[] hallsTypes = new string[]
-                    {
+                switch (table)
+                {
+                    case "hall":
+                        int hallsCount = 10;
+                        string[] hallsTypes = new string[]
+                        {
                         "small",
                         "medium",
                         "large"
-                    };
-                    for (int tick = 1; tick < hallsCount + 1; tick++)
-                    {
-                        data.InsertData(hallsTypes[rnd.Next(0, 3)], tick, false);
-                    }
-                    break;
-                case "seat":
-                    List<int> halls = data.GetIds("hall");
-                    foreach (var el in halls)
-                    {
-                        int seats = 0;
-                        switch (data.GetType("Hall", "Type",el))
+                        };
+                        for (int tick = 1; tick < hallsCount + 1; tick++)
                         {
-                            case "small":
-                                seats = 16;
-                                break;
-                            case "medium":
-                                seats = 32;
-                                break;
-                            case "large":
-                                seats = 64;
-                                break;
+                            data.InsertData(hallsTypes[rnd.Next(0, 3)], tick, false);
                         }
-                        for (int row = 0; row < seats / 2; row++)
+                        break;
+                    case "seat":
+                        List<int> halls = data.GetIds("hall");
+                        foreach (var el in halls)
                         {
-                            for (int number = 0; number < seats / 2; number++)
+                            int seats = 0;
+                            switch (data.GetSpecificRow("hall", 1, el))
                             {
-                                data.InsertData(el, row, number, false);
+                                case "small":
+                                    seats = 16;
+                                    break;
+                                case "medium":
+                                    seats = 32;
+                                    break;
+                                case "large":
+                                    seats = 64;
+                                    break;
+                            }
+                            for (int row = 1; row < seats / 2 + 1; row++)
+                            {
+                                for (int number = 1; number < seats / 2 + 1; number++)
+                                {
+                                    data.InsertData(el, row, number, false);
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
+                    case "movie":
+                        int moviesCount = 10;
+                        string[] categories = new string[]
+                        {
+                        "Historical",
+                        "Comedy",
+                        "Fantasy",
+                        "Military",
+                        "Action",
+                        "Horror",
+                        "Romance",
+                        "Thriller",
+                        "Drama",
+                        "Mystery"
+                        };
+                        string[] firstNames = new string[]
+                        {
+                        "Medic",
+                        "Recruits",
+                        "Star",
+                        "Doom",
+                        "Joy",
+                        "Caution",
+                        "Afraid",
+                        "Inception",
+                        "Alerted",
+                        "Humans",
+                        "Aliens"
+                        };
+                        string[] languages = new string[]
+                        {
+                        "English",
+                        "Russian",
+                        "Estonian"
+                        };
+                        string[] secondNames = new string[]
+                        {
+                        "Of",
+                        "Of",
+                        "In",
+                        "On",
+                        "Without",
+                        "Within",
+                        "In",
+                        "On",
+                        };
+                        string[] thirdNames = new string[]
+                        {
+                        "The ",
+                        " "
+                        };
+                        string[] fourthNames = new string[]
+                        {
+                        "Time",
+                        "Travellers",
+                        "Stardust",
+                        "Life",
+                        "Technology",
+                        "Galaxy",
+                        "Spies",
+                        "End",
+                        "Truth"
+                        };
+                        for (int tick = 0; tick < moviesCount; tick++)
+                        {
+                            string movieName =
+                                firstNames[rnd.Next(0, firstNames.Length)]
+                                + " "
+                                + secondNames[rnd.Next(0, secondNames.Length)]
+                                + " "
+                                + thirdNames[rnd.Next(0, thirdNames.Length)]
+                                + fourthNames[rnd.Next(0, fourthNames.Length)];
+                            data.InsertData(
+                                movieName,
+                                categories[rnd.Next(0, categories.Length)],
+                                languages[rnd.Next(0, languages.Length)],
+                                false,
+                                rnd.Next(0, 300)
+                                );
+                        }
+                        break;
+                }
+                MessageBox.Show("Successfully created all basic rows to table : " + table);
             }
-
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Stopped because of... ");
+                data.CloseConnection();
+            }
         }
 
         private void RemoveRows(string table)
         {
-            data.ClearData(table);
+            try
+            {
+                data.ClearData(table);
+                MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Stopped because of... ");
+                data.CloseConnection();
+            }
         }
 
         private void RemoveRows(string table, int id)
         {
-            data.ClearData(table, id);
+            try
+            {
+                data.ClearData(table, id);
+                MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Stopped because of... ");
+                data.CloseConnection();
+            }
         }
 
         private void CreateTables()
@@ -187,6 +294,7 @@ namespace Cinema
                     previousIdentification = "small";
                     break;
                 case "control":
+                    // Container
                     adminContainer = new Panel
                     {
                         Name = "adminContainer"
@@ -194,6 +302,7 @@ namespace Cinema
                     active.Controls.Add(adminContainer);
                     adminContainer.Dock = DockStyle.Top;
                     adminContainer.Height = 650;
+                    // Buttons
                     create = new Button();
                     drop = new Button();
                     insert = new Button();
@@ -243,6 +352,7 @@ namespace Cinema
                     remove.Text = "Remove all rows";
                     remove.Click += Remove_Click;
                     previousIdentification = "control";
+                    // DataGridView
                     break;
             }
         }
@@ -276,6 +386,7 @@ namespace Cinema
         private Panel active;
         private Panel adminContainer;
         private Panel layout;
+        private DataGridView adminTable;
         private Button create;
         private Button drop;
         private Button insert;
@@ -440,14 +551,18 @@ namespace Cinema
         }
         private void Insert_Click(object sender, EventArgs e)
         {
+            InsertBasicRows("movie");
             InsertBasicRows("hall");
             InsertBasicRows("seat");
         }
 
         private void Remove_Click(object sender, EventArgs e)
         {
-            RemoveRows("Seat");
-            RemoveRows("Hall");
+            RemoveRows("ticket");
+            RemoveRows("showtime");
+            RemoveRows("seat");
+            RemoveRows("movie");
+            RemoveRows("hall");
         }
         private void Drop_Click(object sender, EventArgs e)
         {

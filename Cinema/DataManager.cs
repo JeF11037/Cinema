@@ -55,6 +55,7 @@ namespace Cinema
                     command = new SqlCommand("" +
                     "CREATE TABLE Movie(" +
                     "Id int primary key identity(1, 1), " +
+                    "Name varchar(MAX)," +
                     "Category varchar(MAX), " +
                     "Language varchar(MAX), " +
                     "Subtitles bit, " +
@@ -121,8 +122,24 @@ namespace Cinema
         public void ClearData(string table)
         {
             connection.Open();
-            command = new SqlCommand("DELETE FROM @table", connection);
-            command.Parameters.AddWithValue("@table", table);
+            switch (table.ToLower())
+            {
+                case "hall":
+                    command = new SqlCommand("DELETE FROM Hall", connection);
+                    break;
+                case "showtime":
+                    command = new SqlCommand("DELETE FROM Showtime", connection);
+                    break;
+                case "ticket":
+                    command = new SqlCommand("DELETE FROM Ticket", connection);
+                    break;
+                case "movie":
+                    command = new SqlCommand("DELETE FROM Movie", connection);
+                    break;
+                case "seat":
+                    command = new SqlCommand("DELETE FROM Seat", connection);
+                    break;
+            }
             command.CommandType = CommandType.Text;
             command.ExecuteNonQuery();
             connection.Close();
@@ -131,8 +148,24 @@ namespace Cinema
         public void ClearData(string table, int id)
         {
             connection.Open();
-            command = new SqlCommand("DELETE FROM @table WHERE Id = @Id", connection);
-            command.Parameters.AddWithValue("@table", table);
+            switch (table.ToLower())
+            {
+                case "hall":
+                    command = new SqlCommand("DELETE FROM Hall WHERE Id = @id", connection);
+                    break;
+                case "showtime":
+                    command = new SqlCommand("DELETE FROM Showtime WHERE Id = @id", connection);
+                    break;
+                case "ticket":
+                    command = new SqlCommand("DELETE FROM Ticket WHERE Id = @id", connection);
+                    break;
+                case "movie":
+                    command = new SqlCommand("DELETE FROM Movie WHERE Id = @id", connection);
+                    break;
+                case "seat":
+                    command = new SqlCommand("DELETE FROM Seat WHERE Id = @id", connection);
+                    break;
+            }
             command.Parameters.AddWithValue("@Id", id);
             command.CommandType = CommandType.Text;
             command.ExecuteNonQuery();
@@ -174,26 +207,26 @@ namespace Cinema
             return ids;
         }
 
-        public string GetSpecificRow(string table, string sign, int id)
+        public string GetSpecificRow(string table, int sign, int id)
         {
             connection.Open();
             string row = "";
             switch (table)
             {
                 case "hall":
-                    command = new SqlCommand("SELECT @sign FROM Hall WHERE Id = @id", connection);
+                    command = new SqlCommand("SELECT * FROM Hall WHERE Id = @id", connection);
                     break;
                 case "seat":
-                    command = new SqlCommand("SELECT @sign FROM Seat WHERE Id = @id", connection);
+                    command = new SqlCommand("SELECT * FROM Seat WHERE Id = @id", connection);
                     break;
                 case "movie":
-                    command = new SqlCommand("SELECT @sign FROM Movie WHERE Id = @id", connection);
+                    command = new SqlCommand("SELECT * FROM Movie WHERE Id = @id", connection);
                     break;
                 case "showtime":
-                    command = new SqlCommand("SELECT @sign FROM Showtime WHERE Id = @id", connection);
+                    command = new SqlCommand("SELECT * FROM Showtime WHERE Id = @id", connection);
                     break;
                 case "ticket":
-                    command = new SqlCommand("SELECT @sign FROM Ticket WHERE Id = @id", connection);
+                    command = new SqlCommand("SELECT * FROM Ticket WHERE Id = @id", connection);
                     break;
             }
             command.Parameters.AddWithValue("@sign", sign);
@@ -201,7 +234,10 @@ namespace Cinema
             command.CommandType = CommandType.Text;
             using (var reader = command.ExecuteReader())
             {
-                row = reader[sign].ToString();
+                while (reader.Read())
+                {
+                    row = reader.GetValue(sign).ToString();
+                }
             }
             connection.Close();
             return row;
@@ -220,21 +256,22 @@ namespace Cinema
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(int first, int second, int third, bool fourth)
+        public void InsertData(string first, string second, string third, bool fourth, int fifth)
         {
             connection.Open();
-            command = new SqlCommand("INSERT INTO Movie(Category, Language, Subtitles, Duration) VALUES(" +
-                        "@category, @language, @subtitles, @duration" +
+            command = new SqlCommand("INSERT INTO Movie(Name, Category, Language, Subtitles, Duration) VALUES(" +
+                        "@Name, @category, @language, @subtitles, @duration" +
                         ")", connection);
-            command.Parameters.AddWithValue("@category", first);
-            command.Parameters.AddWithValue("@language", second);
-            command.Parameters.AddWithValue("@subtitles", third);
-            command.Parameters.AddWithValue("@duration", fourth);
+            command.Parameters.AddWithValue("@Name", first);
+            command.Parameters.AddWithValue("@category", second);
+            command.Parameters.AddWithValue("@language", third);
+            command.Parameters.AddWithValue("@subtitles", fourth);
+            command.Parameters.AddWithValue("@duration", fifth);
             command.CommandType = CommandType.Text;
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(string first, string second, bool third, int fourth)
+        public void InsertData(int first, int second, int third, bool fourth)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Seat(HallId, Row, Number, Busy) VALUES(" +
@@ -261,7 +298,7 @@ namespace Cinema
             command.ExecuteNonQuery();
             connection.Close();
         }
-        public void InsertData(int first, int second, int third)
+        public void InsertData(double first, int second, int third)
         {
             connection.Open();
             command = new SqlCommand("INSERT INTO Ticket(Price, ShowtimeId, SeatId) VALUES(" +

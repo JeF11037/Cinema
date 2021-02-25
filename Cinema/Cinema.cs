@@ -18,7 +18,7 @@ namespace Cinema
         {
             try
             {
-                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\levpe\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
+                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\opilane\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
             }
             catch (Exception)
             {

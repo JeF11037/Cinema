@@ -12,14 +12,16 @@ namespace Cinema
 {
     public partial class Cinema : Form
     {
-        readonly private Random rnd = new Random();
+        private readonly Random rnd = new Random();
         private readonly DataManager data;
+        private readonly string dir = System.IO.Directory.GetParent(Environment.CurrentDirectory).Parent.FullName;
 
         public Cinema()
         {
             try
             {
-                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\opilane\source\repos\Cinema\Cinema\MyDB.mdf;Integrated Security=True");
+                string a = System.IO.Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + @"\MyDB.mdf";
+                data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename="+ dir + @"\MyDB.mdf;Integrated Security=True");
             }
             catch (Exception)
             {
@@ -63,15 +65,15 @@ namespace Cinema
                                     seats = 16;
                                     break;
                                 case "medium":
-                                    seats = 32;
+                                    seats = 36;
                                     break;
                                 case "large":
                                     seats = 64;
                                     break;
                             }
-                            for (int row = 1; row < seats / 2 + 1; row++)
+                            for (int row = 1; row < Math.Sqrt(seats) + 1; row++)
                             {
-                                for (int number = 1; number < seats / 2 + 1; number++)
+                                for (int number = 1; number < Math.Sqrt(seats) + 1; number++)
                                 {
                                     data.InsertData(el, row, number, false);
                                 }
@@ -165,12 +167,14 @@ namespace Cinema
                         break;
                 }
                 MessageBox.Show("Successfully inserted all basic rows to table : " + table);
+                ShowElements("control");
                 bar.Value = 0;
             }
             catch (Exception e)
             {
                 bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped because of... ");
+                ShowElements("control");
                 data.CloseConnection();
             }
         }
@@ -183,16 +187,19 @@ namespace Cinema
                 data.ClearData(table);
                 bar.Value += 1000;
                 MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+                ShowElements("control");
                 bar.Value = 0;
             }
             catch (Exception e)
             {
                 bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped because of... ");
+                ShowElements("control");
                 data.CloseConnection();
             }
         }
 
+        /*
         private void RemoveRows(string table, int id)
         {
             try
@@ -201,16 +208,18 @@ namespace Cinema
                 data.ClearData(table, id);
                 bar.Value += 1000;
                 MessageBox.Show("Successfully deleted all basic rows of table : " + table);
+                ShowElements("control");
                 bar.Value = 0;
             }
             catch (Exception e)
             {
                 bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped because of... ");
+                ShowElements("control");
                 data.CloseConnection();
             }
         }
-
+        */
         private void CreateTables()
         {
             int tick = 1;
@@ -231,12 +240,14 @@ namespace Cinema
                 bar.Value += 250;
                 data.CreateTable("ticket");
                 MessageBox.Show("Successfully created all tables");
+                ShowElements("control");
                 bar.Value = 0;
             }
             catch (Exception e)
             {
                 bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped at " + tick);
+                ShowElements("control");
                 data.CloseConnection();
             }
         }
@@ -261,28 +272,85 @@ namespace Cinema
                 bar.Value += 250;
                 data.DropTable("hall");
                 MessageBox.Show("Successfully dropped all tables");
+                ShowElements("control");
                 bar.Value = 0;
             }
             catch (Exception e)
             {
                 bar.Value = 0;
                 MessageBox.Show(e.Message, "Stopped at " + tick);
+                ShowElements("control");
                 data.CloseConnection();
             }
         }
 
         private void LoadStartScene()
         {
-            // Hide menu
             menu.Width = 0;
             active.Width = 1000;
         }
 
         private void ShowMenu()
         {
-            // Show menu
             menu.Width = 250;
             active.Width = 750;
+        }
+
+        private void DrawSeats()
+        {
+            Panel[,] seatLayout = new Panel[,] { };
+            PictureBox[,] seats = new PictureBox[,] { };
+            Label[,] seatNumber = new Label[,] { };
+            switch (layout.Name)
+            {
+                case "small":
+                    seatLayout = new Panel[(int)Math.Sqrt(16), (int)Math.Sqrt(16)];
+                    seats = new PictureBox[(int)Math.Sqrt(16), (int)Math.Sqrt(16)];
+                    seatNumber = new Label[(int)Math.Sqrt(16), (int)Math.Sqrt(16)];
+                    break;
+                case "medium":
+                    seatLayout = new Panel[(int)Math.Sqrt(36), (int)Math.Sqrt(36)];
+                    seats = new PictureBox[(int)Math.Sqrt(36), (int)Math.Sqrt(36)];
+                    seatNumber = new Label[(int)Math.Sqrt(36), (int)Math.Sqrt(36)];
+                    break;
+                case "large":
+                    seatLayout = new Panel[(int)Math.Sqrt(64), (int)Math.Sqrt(64)];
+                    seats = new PictureBox[(int)Math.Sqrt(64), (int)Math.Sqrt(64)];
+                    seatNumber = new Label[(int)Math.Sqrt(64), (int)Math.Sqrt(64)];
+                    break;
+            }
+            int numberMultiplier = 150;
+            int rowMultiplier = 100;
+            int tick = 0;
+            for (int row = 0; row < Math.Sqrt(seats.Length); row++)
+            {
+                for (int number = 0; number < Math.Sqrt(seats.Length); number++)
+                {
+                    tick++;
+                    seatLayout[row, number] = new Panel
+                    {
+                        Width = rowMultiplier,
+                        Height = numberMultiplier,
+                        Location = new Point(10 + number * numberMultiplier, 10 + row * rowMultiplier)
+                    };
+                    seats[row, number] = new PictureBox
+                    {
+                        Name = row.ToString() + number.ToString(),
+                        Dock = DockStyle.Top,
+                        Image = Image.FromFile(dir + @"\img\green.png"),
+                        SizeMode = PictureBoxSizeMode.Zoom
+                    };
+                    seatNumber[row, number] = new Label
+                    {
+                        Dock = DockStyle.Top,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        Text = tick.ToString()
+                    };
+                    seatLayout[row, number].Controls.Add(seatNumber[row, number]);
+                    seatLayout[row, number].Controls.Add(seats[row, number]);
+                    layout.Controls.Add(seatLayout[row, number]);
+                }
+            }
         }
 
         private void TableBoxValueChanged()
@@ -357,40 +425,40 @@ namespace Cinema
                     adminContainer.Controls.Add(drop);
                     create.Dock = DockStyle.Bottom;
                     create.BackColor = Color.Wheat;
-                    create.ForeColor = Color.Snow;
+                    create.ForeColor = Color.Black;
                     create.FlatStyle = FlatStyle.Flat;
                     create.FlatAppearance.BorderSize = 2;
-                    create.FlatAppearance.BorderColor = Color.Snow;
+                    create.FlatAppearance.BorderColor = Color.Black;
                     create.Height = 50;
                     create.Font = new Font("Calibri", 22);
                     create.Text = "Create tables";
                     create.Click += Create_Click;
                     drop.Dock = DockStyle.Bottom;
                     drop.BackColor = Color.Wheat;
-                    drop.ForeColor = Color.Snow;
+                    drop.ForeColor = Color.Black;
                     drop.FlatStyle = FlatStyle.Flat;
                     drop.FlatAppearance.BorderSize = 2;
-                    drop.FlatAppearance.BorderColor = Color.Snow;
+                    drop.FlatAppearance.BorderColor = Color.Black;
                     drop.Height = 50;
                     drop.Font = new Font("Calibri", 22);
                     drop.Text = "Drop tables";
                     drop.Click += Drop_Click;
                     insert.Dock = DockStyle.Bottom;
                     insert.BackColor = Color.Wheat;
-                    insert.ForeColor = Color.Snow;
+                    insert.ForeColor = Color.Black;
                     insert.FlatStyle = FlatStyle.Flat;
                     insert.FlatAppearance.BorderSize = 2;
-                    insert.FlatAppearance.BorderColor = Color.Snow;
+                    insert.FlatAppearance.BorderColor = Color.Black;
                     insert.Height = 50;
                     insert.Font = new Font("Calibri", 22);
                     insert.Text = "Insert basic rows";
                     insert.Click += Insert_Click;
                     remove.Dock = DockStyle.Bottom;
                     remove.BackColor = Color.Wheat;
-                    remove.ForeColor = Color.Snow;
+                    remove.ForeColor = Color.Black;
                     remove.FlatStyle = FlatStyle.Flat;
                     remove.FlatAppearance.BorderSize = 2;
-                    remove.FlatAppearance.BorderColor = Color.Snow;
+                    remove.FlatAppearance.BorderColor = Color.Black;
                     remove.Height = 50;
                     remove.Font = new Font("Calibri", 22);
                     remove.Text = "Remove all rows";
@@ -402,7 +470,7 @@ namespace Cinema
                     bar.BackColor = Color.Wheat;
                     bar.Maximum = 1000;
                     bar.Minimum = 0;
-                    bar.ForeColor = Color.Snow;
+                    bar.ForeColor = Color.Black;
                     // DataGridView
                     adminTable = new DataGridView();
                     adminContainer.Controls.Add(adminTable);
@@ -421,9 +489,9 @@ namespace Cinema
                         Alignment = DataGridViewContentAlignment.MiddleCenter,
                         BackColor = Color.BlanchedAlmond,
                         Font = new Font("Calibri", 22),
-                        ForeColor = Color.Snow,
+                        ForeColor = Color.Black,
                         SelectionBackColor = Color.Wheat,
-                        SelectionForeColor = Color.Snow
+                        SelectionForeColor = Color.Black
                     };
                     // Combobox
                     tablesBox = new ComboBox();
@@ -432,7 +500,7 @@ namespace Cinema
                     tablesBox.Height = 20;
                     tablesBox.Font = new Font("Calibri", 22);
                     tablesBox.BackColor = Color.Wheat;
-                    tablesBox.ForeColor = Color.Snow;
+                    tablesBox.ForeColor = Color.Black;
                     string[] tables = new string[]
                     {
                         "Hall",
@@ -460,7 +528,6 @@ namespace Cinema
             }
         }
 
-        // Menu setup
         private Panel menu;
         private Panel header;
         private Panel body;
@@ -468,15 +535,15 @@ namespace Cinema
         private Button control;
         private Button halls;
         private Panel hallSubmenu;
-        //
+
         private Button smallHall;
         private Button mediumHall;
         private Button largeHall;
-        //
+        
         private Button movies;
         private Button bookings;
 
-        // Active screen setup
+
         private Panel active;
         private Panel adminContainer;
         private Panel layout;
@@ -489,7 +556,6 @@ namespace Cinema
         private Button remove;
         private void InitializeComponents()
         {
-            // Default form settings
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(1000, 800);
             this.Icon = new Icon("../../img/logo.ico");
@@ -497,10 +563,8 @@ namespace Cinema
             this.MinimumSize = this.Size;
             this.KeyPreview = true;
 
-            // Form events
             this.KeyDown += Cinema_KeyDown;
 
-            // Menu settings
             menu = new Panel();
             this.Controls.Add(menu);
             menu.Dock = DockStyle.Left;
@@ -523,7 +587,7 @@ namespace Cinema
             body.Controls.Add(logout);
             logout.Dock = DockStyle.Bottom;
             logout.BackColor = Color.Wheat;
-            logout.ForeColor = Color.Snow;
+            logout.ForeColor = Color.Black;
             logout.FlatStyle = FlatStyle.Flat;
             logout.FlatAppearance.BorderSize = 0;
             logout.Font = new Font("Calibri", 22);
@@ -535,7 +599,7 @@ namespace Cinema
             body.Controls.Add(control);
             control.Dock = DockStyle.Top;
             control.BackColor = Color.Wheat;
-            control.ForeColor = Color.Snow;
+            control.ForeColor = Color.Black;
             control.FlatStyle = FlatStyle.Flat;
             control.FlatAppearance.BorderSize = 0;
             control.Font = new Font("Calibri", 22);
@@ -545,7 +609,6 @@ namespace Cinema
             control.Padding = new Padding(15, 0, 0, 0);
             control.Click += Control_Click;
 
-            //
             hallSubmenu = new Panel();
             body.Controls.Add(hallSubmenu);
             hallSubmenu.Dock = DockStyle.Top;
@@ -556,7 +619,7 @@ namespace Cinema
             hallSubmenu.Controls.Add(largeHall);
             largeHall.Dock = DockStyle.Top;
             largeHall.BackColor = Color.Wheat;
-            largeHall.ForeColor = Color.Snow;
+            largeHall.ForeColor = Color.Black;
             largeHall.FlatStyle = FlatStyle.Flat;
             largeHall.FlatAppearance.BorderSize = 0;
             largeHall.Font = new Font("Calibri", 22);
@@ -570,7 +633,7 @@ namespace Cinema
             hallSubmenu.Controls.Add(mediumHall);
             mediumHall.Dock = DockStyle.Top;
             mediumHall.BackColor = Color.Wheat;
-            mediumHall.ForeColor = Color.Snow;
+            mediumHall.ForeColor = Color.Black;
             mediumHall.FlatStyle = FlatStyle.Flat;
             mediumHall.FlatAppearance.BorderSize = 0;
             mediumHall.Font = new Font("Calibri", 22);
@@ -584,7 +647,7 @@ namespace Cinema
             hallSubmenu.Controls.Add(smallHall);
             smallHall.Dock = DockStyle.Top;
             smallHall.BackColor = Color.Wheat;
-            smallHall.ForeColor = Color.Snow;
+            smallHall.ForeColor = Color.Black;
             smallHall.FlatStyle = FlatStyle.Flat;
             smallHall.FlatAppearance.BorderSize = 0;
             smallHall.Font = new Font("Calibri", 22);
@@ -593,12 +656,12 @@ namespace Cinema
             smallHall.TextAlign = ContentAlignment.MiddleLeft;
             smallHall.Padding = new Padding(30, 0, 0, 0);
             smallHall.Click += SmallHall_Click;
-            //
+            
             halls = new Button();
             body.Controls.Add(halls);
             halls.Dock = DockStyle.Top;
             halls.BackColor = Color.Wheat;
-            halls.ForeColor = Color.Snow;
+            halls.ForeColor = Color.Black;
             halls.FlatStyle = FlatStyle.Flat;
             halls.FlatAppearance.BorderSize = 0;
             halls.Font = new Font("Calibri", 22);
@@ -612,7 +675,7 @@ namespace Cinema
             body.Controls.Add(movies);
             movies.Dock = DockStyle.Top;
             movies.BackColor = Color.Wheat;
-            movies.ForeColor = Color.Snow;
+            movies.ForeColor = Color.Black;
             movies.FlatStyle = FlatStyle.Flat;
             movies.FlatAppearance.BorderSize = 0;
             movies.Font = new Font("Calibri", 22);
@@ -626,7 +689,7 @@ namespace Cinema
             body.Controls.Add(bookings);
             bookings.Dock = DockStyle.Top;
             bookings.BackColor = Color.Wheat;
-            bookings.ForeColor = Color.Snow;
+            bookings.ForeColor = Color.Black;
             bookings.FlatStyle = FlatStyle.Flat;
             bookings.FlatAppearance.BorderSize = 0;
             bookings.Font = new Font("Calibri", 22);
@@ -637,7 +700,6 @@ namespace Cinema
             bookings.Click += Bookings_Click;
 
 
-            // Active form settings
             active = new Panel();
             this.Controls.Add(active);
             active.Dock = DockStyle.Right;
@@ -724,16 +786,19 @@ namespace Cinema
         private void LargeHall_Click(object sender, EventArgs e)
         {
             ShowElements("large");
+            DrawSeats();
         }
 
         private void MediumHall_Click(object sender, EventArgs e)
         {
             ShowElements("medium");
+            DrawSeats();
         }
 
         private void SmallHall_Click(object sender, EventArgs e)
         {
             ShowElements("small");
+            DrawSeats();
         }
 
         private void Halls_Click(object sender, EventArgs e)

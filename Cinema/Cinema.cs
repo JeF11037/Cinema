@@ -15,12 +15,12 @@ namespace Cinema
         private readonly Random rnd = new Random();
         private readonly DataManager data;
         private readonly string dir = System.IO.Directory.GetParent(Environment.CurrentDirectory).Parent.FullName;
+        private readonly List<PictureBox> capturedChairs = new List<PictureBox>();
 
         public Cinema()
         {
             try
             {
-                string a = System.IO.Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + @"\MyDB.mdf";
                 data = new DataManager(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename="+ dir + @"\MyDB.mdf;Integrated Security=True");
             }
             catch (Exception)
@@ -165,6 +165,57 @@ namespace Cinema
                         }
                         bar.Value = 1000;
                         break;
+                    case "showtime":
+                        int[] hours = new int[]
+                        {
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
+                        };
+                        int[] minutes = new int[]
+                        {
+                            0,
+                            15,
+                            30,
+                            45
+                        };
+                        int[] days = new int[]
+                        {
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10
+                        };
+                        int showtimeCount = 30;
+                        for (int tick = 0; tick < showtimeCount; tick++)
+                        {
+                            DateTime showtimeDate = DateTime.Now.AddDays(days[rnd.Next(0, days.Length)]);
+                            showtimeDate.AddHours(hours[rnd.Next(0, hours.Length)]);
+                            showtimeDate.AddMinutes(minutes[rnd.Next(0, minutes.Length)]);
+                            data.InsertData(
+                                data.GetIds("movie")[rnd.Next(0, data.GetIds("movie").Count)],
+                                showtimeDate,
+                                data.GetIds("hall")[rnd.Next(0, data.GetIds("hall").Count)]);
+                            bar.Value += 10;
+                        }
+                        bar.Value = 1000;
+                        break;
                 }
                 MessageBox.Show("Successfully inserted all basic rows to table : " + table);
                 ShowElements("control");
@@ -288,90 +339,243 @@ namespace Cinema
         {
             menu.Width = 0;
             active.Width = 1000;
+            ShowElements("cinema");
         }
 
         private void ShowMenu()
         {
             menu.Width = 250;
             active.Width = 750;
+            ShowElements();
         }
 
-        private void DrawSeats()
+        private void DrawSeats(string n)
         {
-            Panel[,] seatLayout = new Panel[,] { };
-            PictureBox[,] seats = new PictureBox[,] { };
-            Label[,] seatNumber = new Label[,] { };
-            switch (layout.Name)
+            int numberMultiplier = 50;
+            int rowMultiplier = 50;
+            int offset = 30;
+            List<int> ids = data.GetSeats(data.GetHallId(n));
+            foreach (var el in ids)
             {
-                case "small":
-                    seatLayout = new Panel[(int)Math.Sqrt(16), (int)Math.Sqrt(16)];
-                    seats = new PictureBox[(int)Math.Sqrt(16), (int)Math.Sqrt(16)];
-                    seatNumber = new Label[(int)Math.Sqrt(16), (int)Math.Sqrt(16)];
-                    break;
-                case "medium":
-                    seatLayout = new Panel[(int)Math.Sqrt(36), (int)Math.Sqrt(36)];
-                    seats = new PictureBox[(int)Math.Sqrt(36), (int)Math.Sqrt(36)];
-                    seatNumber = new Label[(int)Math.Sqrt(36), (int)Math.Sqrt(36)];
-                    break;
-                case "large":
-                    seatLayout = new Panel[(int)Math.Sqrt(64), (int)Math.Sqrt(64)];
-                    seats = new PictureBox[(int)Math.Sqrt(64), (int)Math.Sqrt(64)];
-                    seatNumber = new Label[(int)Math.Sqrt(64), (int)Math.Sqrt(64)];
-                    break;
-            }
-            int numberMultiplier = 150;
-            int rowMultiplier = 100;
-            int tick = 0;
-            for (int row = 0; row < Math.Sqrt(seats.Length); row++)
-            {
-                for (int number = 0; number < Math.Sqrt(seats.Length); number++)
+                string img;
+                if (!Convert.ToBoolean(data.GetSpecificRow("seat", 4, el)))
                 {
-                    tick++;
-                    seatLayout[row, number] = new Panel
-                    {
-                        Width = rowMultiplier,
-                        Height = numberMultiplier,
-                        Location = new Point(10 + number * numberMultiplier, 10 + row * rowMultiplier)
-                    };
-                    seats[row, number] = new PictureBox
-                    {
-                        Name = row.ToString() + number.ToString(),
-                        Dock = DockStyle.Top,
-                        Image = Image.FromFile(dir + @"\img\green.png"),
-                        SizeMode = PictureBoxSizeMode.Zoom
-                    };
-                    seatNumber[row, number] = new Label
-                    {
-                        Dock = DockStyle.Top,
-                        TextAlign = ContentAlignment.MiddleCenter,
-                        Text = tick.ToString()
-                    };
-                    seatLayout[row, number].Controls.Add(seatNumber[row, number]);
-                    seatLayout[row, number].Controls.Add(seats[row, number]);
-                    layout.Controls.Add(seatLayout[row, number]);
+                    img = dir + @"\img\green.png";
+                }
+                else
+                {
+                    img = dir + @"\img\red.png";
+                }
+                PictureBox seat = new PictureBox
+                {
+                    Name =
+                    data.GetSpecificRow("seat", 0, el) + "-" +
+                    data.GetSpecificRow("seat", 2, el) + "-" +
+                    data.GetSpecificRow("seat", 3, el) + "-" +
+                    data.GetSpecificRow("seat", 4, el),
+                    Image = Image.FromFile(img),
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Size = new Size(50, 50),
+                    Location = new Point
+                    (
+                        offset + Convert.ToInt32(data.GetSpecificRow("seat", 3, el)) * rowMultiplier,
+                        offset + Convert.ToInt32(data.GetSpecificRow("seat", 2, el)) * numberMultiplier
+                    )
+                };
+                seat.Click += Seat_Click;
+                layout.Controls.Add(seat);
+            }
+        }
+
+        private void Seat_Click(object sender, EventArgs e)
+        {
+            PictureBox seat = (PictureBox)sender;
+
+            if (seat.Image != Image.FromFile(dir + @"\img\red.png"))
+            {
+                if (capturedChairs.Contains(seat))
+                {
+                    seat.Image = Image.FromFile(dir + @"\img\green.png");
+                    capturedChairs.Add(seat);
+                }
+                else
+                {
+                    seat.Image = Image.FromFile(dir + @"\img\yellow.png");
+                    capturedChairs.Add(seat);
                 }
             }
+            else
+            {
+                MessageBox.Show("Place is taken already");
+            }
         }
 
-        private void TableBoxValueChanged()
+        private void TableBoxValueChanged(string cause)
         {
-            try
+            switch (cause)
             {
-                adminTable.DataSource = data.GetTable(tablesBox.SelectedValue.ToString());
+                case "admin":
+                    try
+                    {
+                        adminTable.DataSource = data.GetTable(tablesBox.SelectedValue.ToString());
+                    }
+                    catch (Exception)
+                    {
+                        data.CloseConnection();
+                        MessageBox.Show("No tables matched");
+                    }
+                    break;
+                case "hall":
+                    DrawSeats(hallBox.SelectedItem.ToString());
+                    try
+                    {
+                        DrawSeats(hallBox.SelectedItem.ToString());
+                    }
+                    catch (Exception)
+                    {
+                        data.CloseConnection();
+                        MessageBox.Show("No rows matched");
+                    }
+                    break;
             }
-            catch (Exception)
-            {
-                data.CloseConnection();
-                MessageBox.Show("No tables matched");
-            }
+        }
+
+        private double GetRandomNumber(double minimum, double maximum)
+        {
+            Random random = new Random();
+            return random.NextDouble() * (maximum - minimum) + minimum;
+        }
+
+        private void ChangeFilm(int ix)
+        {
+            filmLabel.Text = 
+                "Name : " +
+                data.GetFilm(ix).Item1 + 
+                "\nCategory : " +
+                data.GetFilm(ix).Item2 +
+                "\nLanguage : " +
+                data.GetFilm(ix).Item3 +
+                "\nSubtitles : " +
+                data.GetFilm(ix).Item4.ToString() +
+                "\nDuration : " +
+                data.GetFilm(ix).Item5.ToString()
+                ; 
         }
 
         private string previousIdentification;
+        private int carouselIx = 0;
         private void ShowElements(string identification)
         {
             ShowElements();
             switch (identification.ToLower())
             {
+                case "choose":
+                    layout = new Panel
+                    {
+                        Name = "choose"
+                    };
+                    active.Controls.Add(layout);
+                    layout.Dock = DockStyle.Top;
+                    layout.BackColor = Color.Wheat;
+                    layout.Height = 650;
+                    Button cancel = new Button
+                    {
+                        Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2 - 125,
+                          (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2 + 450),
+                        BackColor = Color.Wheat,
+                        ForeColor = Color.Black,
+                        Height = 50,
+                        Width = 120,
+                        Font = new Font("Calibri", 22),
+                        Text = "Cancel",
+                    };
+                    cancel.Click += Cancel_Click;
+                    layout.Controls.Add(cancel);
+                    Button confirm = new Button
+                    {
+                        Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2,
+                          (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2 + 450),
+                        BackColor = Color.Wheat,
+                        ForeColor = Color.Black,
+                        Height = 50,
+                        Width = 130,
+                        Font = new Font("Calibri", 22),
+                        Text = "Confirm",
+                    };
+                    confirm.Click += Confirm_Click;
+                    layout.Controls.Add(confirm);
+                    DrawSeats(data.GetHall(data.GetIds("showtime")[carouselIx]));
+                    previousIdentification = "choose";
+                    break;
+                case "cinema":
+                    layout = new Panel
+                    {
+                        Name = "cinema"
+                    };
+                    active.Controls.Add(layout);
+                    layout.Dock = DockStyle.Top;
+                    layout.BackColor = Color.Wheat;
+                    layout.Height = 650;
+                    Button previous = new Button
+                    {
+                        Dock = DockStyle.Left,
+                        BackColor = Color.Wheat,
+                        ForeColor = Color.Black,
+                        FlatStyle = FlatStyle.Flat,
+                        Height = 50,
+                        Font = new Font("Calibri", 22),
+                        Text = "<",
+                    };
+                    previous.Click += Previous_Click;
+                    layout.Controls.Add(previous);
+                    Button next = new Button
+                    {
+                        Dock = DockStyle.Right,
+                        BackColor = Color.Wheat,
+                        ForeColor = Color.Black,
+                        FlatStyle = FlatStyle.Flat,
+                        Height = 50,
+                        Font = new Font("Calibri", 22),
+                        Text = ">",
+                    };
+                    next.Click += Next_Click;
+                    layout.Controls.Add(next);
+                    film = new PictureBox
+                    {
+                        Image = Image.FromFile(dir + @"\img\q.png"),
+                        SizeMode = PictureBoxSizeMode.Zoom,
+                        Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2 - 125,
+                          (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2 - 125),
+                        Size = new Size(250, 250)
+                    };
+                    filmLabel = new Label
+                    {
+                        Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2 - 125,
+                          (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2 + 125),
+                        Height = 300,
+                        Width = 400,
+                        Text = "Disc",
+                        Font = new Font("Calibri", 22)
+
+                    };
+                    layout.Controls.Add(film);
+                    layout.Controls.Add(filmLabel);
+                    Button order = new Button
+                    {
+                        Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2 - 125,
+                          (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2 + 450),
+                        BackColor = Color.Wheat,
+                        ForeColor = Color.Black,
+                        Height = 50,
+                        Width = 100,
+                        Font = new Font("Calibri", 22),
+                        Text = "Order",
+                    };
+                    order.Click += Order_Click;
+                    layout.Controls.Add(order);
+                    ChangeFilm(data.GetMovieByShowtime(data.GetIds("showtime")[carouselIx]));
+                    previousIdentification = "cinema";
+                    break;
                 case "large":
                     layout = new Panel
                     {
@@ -381,6 +585,15 @@ namespace Cinema
                     layout.Dock = DockStyle.Top;
                     layout.BackColor = Color.Wheat;
                     layout.Height = 650;
+                    hallBox = new ComboBox();
+                    layout.Controls.Add(hallBox);
+                    hallBox.Dock = DockStyle.Top;
+                    hallBox.Height = 20;
+                    hallBox.Font = new Font("Calibri", 22);
+                    hallBox.BackColor = Color.Wheat;
+                    hallBox.ForeColor = Color.Black;
+                    hallBox.DataSource = data.GetHalls("large");
+                    hallBox.SelectedValueChanged += HallBox_SelectedValueChanged;
                     previousIdentification = "large";
                     break;
                 case "medium":
@@ -392,6 +605,15 @@ namespace Cinema
                     layout.Dock = DockStyle.Top;
                     layout.BackColor = Color.Wheat;
                     layout.Height = 650;
+                    hallBox = new ComboBox();
+                    layout.Controls.Add(hallBox);
+                    hallBox.Dock = DockStyle.Top;
+                    hallBox.Height = 20;
+                    hallBox.Font = new Font("Calibri", 22);
+                    hallBox.BackColor = Color.Wheat;
+                    hallBox.ForeColor = Color.Black;
+                    hallBox.DataSource = data.GetHalls("medium");
+                    hallBox.SelectedValueChanged += HallBox_SelectedValueChanged;
                     previousIdentification = "medium";
                     break;
                 case "small":
@@ -403,6 +625,15 @@ namespace Cinema
                     layout.Dock = DockStyle.Top;
                     layout.BackColor = Color.Wheat;
                     layout.Height = 650;
+                    hallBox = new ComboBox();
+                    layout.Controls.Add(hallBox);
+                    hallBox.Dock = DockStyle.Top;
+                    hallBox.Height = 20;
+                    hallBox.Font = new Font("Calibri", 22);
+                    hallBox.BackColor = Color.Wheat;
+                    hallBox.ForeColor = Color.Black;
+                    hallBox.DataSource = data.GetHalls("small");
+                    hallBox.SelectedValueChanged += HallBox_SelectedValueChanged;
                     previousIdentification = "small";
                     break;
                 case "control":
@@ -512,11 +743,38 @@ namespace Cinema
                     tablesBox.DataSource = tables;
                     tablesBox.SelectedValueChanged += TablesBox_SelectedValueChanged;
                     // adminTable DataSource bound
-                    TableBoxValueChanged();
+                    TableBoxValueChanged("admin");
                     // Var
                     previousIdentification = "adminContainer";
                     break;
             }
+        }
+
+        private void Confirm_Click(object sender, EventArgs e)
+        {
+            string places = "";
+            foreach (var el in capturedChairs)
+            {
+                string[] name = el.Name.Split('-');
+                data.InsertData(GetRandomNumber(2, 5), data.GetIds("showtime")[carouselIx], Convert.ToInt32(name[0]));
+                el.Image = Image.FromFile(dir + @"\img\red.png");
+                data.UpdateChair(Convert.ToInt32(name[0]));
+                if (!string.IsNullOrEmpty(places))
+                {
+                    places += "| Row : " + name[1] + ", Number : " + name[2];
+                }
+                else
+                {
+                    places += "Row : " + name[1] + ", Number : " + name[2];
+                }
+            }
+            MessageBox.Show("Your Ticket\nPlaces*\n"+places+"\nDate*\n"+data.GetDate(data.GetIds("showtime")[carouselIx])+"\nPrice*\n"+(Math.Round(GetRandomNumber(2, 5) * capturedChairs.Count, 2)).ToString());
+
+        }
+
+        private void Cancel_Click(object sender, EventArgs e)
+        {
+            ShowElements("cinema");
         }
 
         private void ShowElements()
@@ -543,12 +801,14 @@ namespace Cinema
         private Button movies;
         private Button bookings;
 
-
+        private Label filmLabel;
+        private PictureBox film;
         private Panel active;
         private Panel adminContainer;
         private Panel layout;
         private DataGridView adminTable;
         private ComboBox tablesBox;
+        private ComboBox hallBox;
         private ProgressBar bar;
         private Button create;
         private Button drop;
@@ -671,12 +931,14 @@ namespace Cinema
             halls.Padding = new Padding(15, 0, 0, 0);
             halls.Click += Halls_Click;
 
-            movies = new Button();
-            body.Controls.Add(movies);
-            movies.Dock = DockStyle.Top;
-            movies.BackColor = Color.Wheat;
-            movies.ForeColor = Color.Black;
-            movies.FlatStyle = FlatStyle.Flat;
+            movies = new Button
+            {
+                //body.Controls.Add(movies);
+                Dock = DockStyle.Top,
+                BackColor = Color.Wheat,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat
+            };
             movies.FlatAppearance.BorderSize = 0;
             movies.Font = new Font("Calibri", 22);
             movies.Text = "Movies";
@@ -685,12 +947,14 @@ namespace Cinema
             movies.Padding = new Padding(15, 0, 0, 0);
             movies.Click += Movies_Click;
 
-            bookings = new Button();
-            body.Controls.Add(bookings);
-            bookings.Dock = DockStyle.Top;
-            bookings.BackColor = Color.Wheat;
-            bookings.ForeColor = Color.Black;
-            bookings.FlatStyle = FlatStyle.Flat;
+            bookings = new Button
+            {
+                //body.Controls.Add(bookings);
+                Dock = DockStyle.Top,
+                BackColor = Color.Wheat,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat
+            };
             bookings.FlatAppearance.BorderSize = 0;
             bookings.Font = new Font("Calibri", 22);
             bookings.Text = "Bookings";
@@ -708,9 +972,45 @@ namespace Cinema
             active.Padding = new Padding(50);
         }
 
+        private void Order_Click(object sender, EventArgs e)
+        {
+            ShowElements("choose");
+        }
+
+        private void Next_Click(object sender, EventArgs e)
+        {
+            if (carouselIx < data.GetIds("showtime").Count-1)
+            {
+                carouselIx++;
+            }
+            else
+            {
+                carouselIx = 0;
+            }
+            ChangeFilm(data.GetMovieByShowtime(data.GetIds("showtime")[carouselIx]));
+        }
+
+        private void Previous_Click(object sender, EventArgs e)
+        {
+            if (carouselIx > 0)
+            {
+                carouselIx--;
+            }
+            else
+            {
+                carouselIx = data.GetIds("showtime").Count-1;
+            }
+            ChangeFilm(data.GetMovieByShowtime(data.GetIds("showtime")[carouselIx]));
+        }
+
         private void TablesBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            TableBoxValueChanged();
+            TableBoxValueChanged("admin");
+        }
+
+        private void HallBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            TableBoxValueChanged("hall");
         }
 
         private void Insert_Click(object sender, EventArgs e)
@@ -739,6 +1039,14 @@ namespace Cinema
             else
             {
                 MessageBox.Show("Values inserted in Seat already");
+            }
+            if (!data.IsTableEmpty("showtime"))
+            {
+                InsertBasicRows("showtime");
+            }
+            else
+            {
+                MessageBox.Show("Values inserted in Showtime already");
             }
             this.Enabled = true;
         }
@@ -786,19 +1094,16 @@ namespace Cinema
         private void LargeHall_Click(object sender, EventArgs e)
         {
             ShowElements("large");
-            DrawSeats();
         }
 
         private void MediumHall_Click(object sender, EventArgs e)
         {
             ShowElements("medium");
-            DrawSeats();
         }
 
         private void SmallHall_Click(object sender, EventArgs e)
         {
             ShowElements("small");
-            DrawSeats();
         }
 
         private void Halls_Click(object sender, EventArgs e)
@@ -823,7 +1128,6 @@ namespace Cinema
 
         private void Logout_Click(object sender, EventArgs e)
         {
-            ShowElements();
             LoadStartScene();
         }
     }

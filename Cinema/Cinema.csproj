@@ -143,6 +143,7 @@
   <ItemGroup>
     <Content Include="img\green.png" />
     <Content Include="img\logo.ico" />
+    <Content Include="img\q.png" />
     <Content Include="img\red.png" />
     <Content Include="img\yellow.png" />
     <Content Include="MyDB.mdf">
